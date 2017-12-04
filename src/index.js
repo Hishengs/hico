@@ -3,15 +3,18 @@ const path = require('path');
 const crypto = require('crypto');
 const webpack = require('webpack');
 const util = require('./util.js');
-const webpackConfig = require('../build/base.config.js');
+const baseConfig = require('../build/base.config.js');
+const devConfig = require('../build/dev.config.js');
 
 class Hico {
 	constructor (){
+    this._env = 'development';
   	this.entry = {};
     this.targetDir = null;
     this.distDir = null;
     this.ignores = [];
-    this.webpackConfig = webpackConfig;
+    this.webpackConfig = null;
+    this.webpackTempFile = path.join(__dirname, './webpack-temp.config.js');
   }
 
   // set target resources directory
@@ -40,6 +43,12 @@ class Hico {
     return this;
   }
 
+  // set env
+  env (env){
+    this._env = env;
+    return this;
+  }
+
   hash (data){
     const md5 = crypto.createHash("md5");
     md5.update(data);
@@ -64,38 +73,50 @@ class Hico {
     return paths;
   }
 
-  // build resources
-  build (){
-  	// find entry files and flatten to array
+  setEntry (){
+    // find entry files and flatten to array
     const files = this.recursiveFiles(this.targetDir);
     files.forEach(file => {
       // hash file path to id
       this.entry[this.hash(file)] = file;
     });
-    console.log(JSON.stringify(this.entry, null, 2));
-    return;
-    const compiler = webpack(this.webpackConfig);
-    compiler.run((err, stats) => {
-      if(err){
-        console.error(err);
-        return;
-      }
-      const info = stats.toJson();
-      if(stats.hasErrors()){
-        console.error(info.errors);
-      }else if(stats.hasWarnings()){
-        console.warn(info.warnings);
-      }else {
-        // build done
-        console.log('build done.');
-      }
-    });
-    return this;
   }
 
-  // build resources then watching for changes
-  watch (){
-  	//
+  buildMapFile (entry){
+    const resourcesMap = {};
+    for(let key of Object.keys(entry)){
+      resourcesMap[entry[key]] = key;
+    }
+    fs.writeFileSync(path.join(process.cwd(), './resources-map.json'), JSON.stringify(resourcesMap, null, 2), { encoding: 'utf8' });
+  }
+
+  // build resources
+  build (watch = false){
+  	this.setEntry();
+
+    this.webpackConfig = baseConfig({
+      entry: this.entry,
+      dist: this.distDir,
+    });
+
+    this.buildMapFile(this.entry);
+
+    return this.webpackConfig;
+  }
+
+  // hot update
+  hotUpdate (config = {}){
+    this.setEntry();
+
+    this.webpackConfig = devConfig({
+      entry: this.entry,
+      dist: this.distDir,
+      devServer: config,
+    });
+
+    this.buildMapFile(this.entry);
+
+    return this.webpackConfig;
   }
 };
 

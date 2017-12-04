@@ -3,9 +3,16 @@ const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = (options = {}) => {
+  options = Object.assign({
+    entry: {},
+    dist: path.join(__dirname, '../dist'),
+    publicPath: '/dist/',
+  }, options || {});
   const plugins = [
     // clean your dist folder before build
-    new CleanWebpackPlugin([options.dist || 'dist']),
+    new CleanWebpackPlugin([options.dist], {
+      root: path.join(options.dist, '../')
+    }),
   ];
 
   const rules = [
@@ -25,12 +32,12 @@ module.exports = (options = {}) => {
   ];
 
   return {
-    entry: options.entry || {},
+    entry: options.entry,
     output: {
-      path: options.dist || path.join(__dirname, '../dist'),
+      path: options.dist,
       filename: '[name].entry.js',
       chunkFilename: '[name].[chunkhash:4].chunk.js',
-      publicPath: options.publicPath || '/dist/',
+      publicPath: options.publicPath,
     },
     plugins,
     module: {
