@@ -12,15 +12,14 @@ class Hico {
   	this.entry = {};
     this.targetDir = null;
     this.distDir = null;
-    this.ignores = [];
+    this.ignoreFiles = [];
     this.webpackConfig = null;
-    this.webpackTempFile = path.join(__dirname, './webpack-temp.config.js');
   }
 
   // set target resources directory
   target (targetDir){
     // check if is directory and exists
-    if(fs.existsSync(targetDir) && fs.statSync(targetDir).isDirectory(targetDir)){
+    if(fs.existsSync(targetDir) && util.isDir(targetDir)){
       this.targetDir = targetDir;
       return this;
     }else throw new Error('invalid target');
@@ -33,7 +32,7 @@ class Hico {
       // create dist dir
       fs.mkdirSync(distDir);
     }else {
-      if(!fs.statSync(distDir).isDirectory(distDir)){
+      if(!util.isDir(distDir)){
         throw new Error('invalid dist directory');
       }
     }
@@ -41,12 +40,30 @@ class Hico {
     return this;
   }
 
-  // ignore resources
-  ignore (ignores){
-  	if(Array.isArray(ignores)){
-      this.ignores = this.ignores.concat(ignores);
-    }else this.ignores.push(ignores);
+  // ignore files
+  ignore (ignoreFiles){
+    this.ignoreFiles = [].concat(ignoreFiles).map(file => {
+      return path.normalize(file);
+    });
     return this;
+  }
+
+  // extract files
+  extractFiles (files){
+    let _files = [];
+    files.forEach(file => {
+      file = path.normalize(file);
+      if(_files.includes(file))return;
+      if(util.isDir(file)){
+        // _files.push(file);
+        _files = _files.concat(this.getDirFiles(file));
+      }else if(util.isFile(file)){
+        _files.push(file);
+      }else if((/(\/\*\/)+\*\./).test(file)){
+        // may be like this '/xx/yy/*.js'
+      }
+    });
+    return _files;
   }
 
   // set env
@@ -61,7 +78,7 @@ class Hico {
     return md5.digest('hex');
   }
 
-  recursiveFiles (dirPath){
+  getDirFiles (dirPath, match = null){
     let paths = [];
     const files = fs.readdirSync(dirPath);
     for(let i=0, ilen=files.length; i<ilen; i++){
@@ -69,22 +86,30 @@ class Hico {
       const filePath = path.join(dirPath, fileName);
       const isFile = fs.statSync(filePath).isFile();
       if(isFile){
-        if(fileName.includes('entry.js')){
-          paths.push(filePath);
-        }
+        if(match){
+          if(match(filePath)){
+            paths.push(filePath);
+          }
+        }else paths.push(filePath);
       }else {
-        paths = paths.concat(this.recursiveFiles(filePath));
+        paths = paths.concat(this.getDirFiles(filePath, match));
       }
     }
     return paths;
   }
 
+  // =============== for webpack building ================
+
   setEntry (){
     // find entry files and flatten to array
-    const files = this.recursiveFiles(this.targetDir);
+    const files = this.getDirFiles(this.targetDir, file => {
+      let isIgnore = false;
+      this.ignoreFiles.forEach(ignoreFile => {
+        isIgnore = file.includes(ignoreFile);
+      });
+      return file.includes('entry.js') && !isIgnore;
+    });
     files.forEach(file => {
-      // hash file path to id
-      // this.entry[this.hash(file)] = file;
       const entryname = file.replace(this.targetDir, '').replace(/\\+/g, '/')/*.replace(path.extname(file), '')*/;
       this.entry[entryname] = file;
     });
@@ -131,19 +156,37 @@ class Hico {
     return this.webpackConfig;
   }
 
-  // build less
-  less (src){
-    console.log('\n=============== less building ==============');
+  // =============== for style building ================
 
-    const less = require('less');
+  // common style building
+  buildStyle (src, type, ext, transform){
+    console.log(`\n=============== ${type} building ==============`);
+
     const files = [].concat(src).forEach((file, index) => {
-      file = path.join(file, '');
-      const fileDistPath = file.replace(this.targetDir, this.distDir).replace('.less', '.css');
+      file = path.normalize(file);
+      const fileDistPath = file.replace(this.targetDir, this.distDir).replace(ext, '.css');
       const styleData = fs.readFileSync(file, { encoding: 'utf8' });
       console.log(` ${index+1} building: ${file}`);
+      transform(styleData, file, fileDistPath);
+    });
+  }
+
+  // build css
+  css (src){
+    this.buildStyle(src, 'css', '.css', (styleData, file, dist) => {
+      util.mkdirDeep(path.dirname(dist));
+      fs.writeFileSync(dist, styleData, { encoding: 'utf8' });
+    });
+    return this;
+  }
+
+  // build less
+  less (src){
+    const less = require('less');
+    this.buildStyle(src, 'less', '.less', (styleData, file, dist) => {
       less.render(styleData, { paths: [path.dirname(file)] }).then(output => {
-        util.mkdirDeep(path.dirname(fileDistPath));
-        fs.writeFileSync(fileDistPath, output.css, { encoding: 'utf8' });
+        util.mkdirDeep(path.dirname(dist));
+        fs.writeFileSync(dist, output.css, { encoding: 'utf8' });
       });
     });
     return this;
@@ -151,20 +194,14 @@ class Hico {
 
   // build sass
   sass (src){
-    console.log('\n=============== sass building ==============');
-    
     const sass = require('node-sass');
-    const files = [].concat(src).forEach((file, index) => {
-      file = path.join(file, '');
-      const fileDistPath = file.replace(this.targetDir, this.distDir).replace(/\.s[ac]ss/, '.css');
-      const styleData = fs.readFileSync(file, { encoding: 'utf8' });
-      console.log(` ${index+1} building: ${file}`);
+    this.buildStyle(src, 'less', '.less', (styleData, file, dist) => {
       const compiledData = sass.renderSync({
         data: styleData,
         includePaths: [path.dirname(file)]
       });
-      util.mkdirDeep(path.dirname(fileDistPath));
-      fs.writeFileSync(fileDistPath, compiledData, { encoding: 'utf8' });
+      util.mkdirDeep(path.dirname(dist));
+      fs.writeFileSync(dist, compiledData, { encoding: 'utf8' });
     });
     return this;
   }

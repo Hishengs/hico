@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-// const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = (options = {}) => {
@@ -10,10 +9,6 @@ module.exports = (options = {}) => {
     publicPath: '/dist/',
   }, options || {});
   const plugins = [
-    // clean your dist folder before build
-    // new CleanWebpackPlugin([options.dist], {
-    //   root: path.join(options.dist, '../')
-    // }),
     // new ExtractTextPlugin('[name].css'), 
   ];
 

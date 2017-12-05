@@ -36,8 +36,20 @@ const moveDirectory = (src, dist) => {
 	//
 };
 
+// is directory
+const isDir = (file) => {
+	return fs.statSync(file).isDirectory(file);
+};
+
+// is file
+const isFile = (file) => {
+	return fs.statSync(file).isFile(file);
+};
+
 module.exports = {
 	mkdirDeep,
 	copyFile,
 	copyFile,
+	isDir,
+	isFile,
 };

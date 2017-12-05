@@ -9,7 +9,7 @@
 		name: 'app',
 		data (){
 			return {
-				title: 'Hico Test 2',
+				title: 'Hico Test 1',
 			};
 		},
 	};

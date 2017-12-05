@@ -9,23 +9,6 @@ module.exports = (options = {}) => {
 	  'process.env.NODE_ENV': JSON.stringify('development')
 	}));
 
-	// base.plugins.push(new webpack.SourceMapDevToolPlugin({
-	//   filename: '[file].map',
-	//   exclude: ['vendor.js']
-	// }));
-
-	// build analysis
-	// if(config.analyse){
-	//   // tool 1
-	//   const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-	//   base.plugins.push(new BundleAnalyzerPlugin());
-	//   // tool 2
-	//   // const Visualizer = require('webpack-visualizer-plugin');
-	//   // base.plugins.push(new Visualizer({
-	//   //   filename: 'visualizer.html'
-	//   // }));
-	// }
-
 	if(options.devServer){
 		const devServer = Object.assign({
 		  hot: true,

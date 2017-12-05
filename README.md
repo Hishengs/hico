@@ -10,16 +10,16 @@ A frontend solution for traditional website
 
 ```html
 ├── module
-	├── moduleA
+  ├── moduleA
       ├── index.entry.js // webpack 入口文件
       ├── index.html     // 模块页面
       ├── index.less     // 模块样式文件
       ├── dep.js         // 依赖模块
-	├── moduleB
+  ├── moduleB
       ├── index.entry.js // webpack 入口文件
       ├── index.html     // 模块页面
       ├── index.css      // 模块样式文件
-	├── temp             // 临时性目录
+  ├── temp             // 临时性目录
 ```
 
 其中，index.entry.js 是模块默认的入口文件，webpack 会使用此文件作为该模块的入口文件：
@@ -39,17 +39,16 @@ dep.echo();
 <!DOCTYPE html>
 <html>
 <head>
-	<title>hico</title>
+  <title>hico</title>
 </head>
 <body>
-	<div id="app"></div>
-	<script src="/module/moduleA/index.entry.js"></script>
+  <div id="app"></div>
+  <script src="/module/moduleA/index.entry.js"></script>
 </body>
 </html>
 ```
 
 `moduleB`目录结构类似。
-
 
 
 ### 2. 编译你的代码
@@ -76,3 +75,64 @@ webpack --progress --hide-modules --colors --config=webpack-dev.config.js
 ```
 
 双击 `build-dev.bat` 执行打包。
+
+
+
+## API
+
+### target(targetDir)
+**参数** `targetDir` 开发目录。
+**说明** 指定你的开发目录。
+**返回** 返回当前实例。
+
+
+### dist(distDir)
+**参数** `distDir` 输出目录。
+**说明** 指定你的输出目录。
+**返回** 返回当前实例。
+
+
+### ignore(files)
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。
+**说明** 忽略文件或者文件夹。
+**返回** 返回当前实例。
+
+
+### env(env)
+**参数** `env` 当前环境。
+**说明** 指定当前打包环境：`development`（默认） 或者 `production`，会根据指定环境采用不同的打包策略。
+**返回** 返回当前实例。
+
+
+### js(files)
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。
+**说明** 指定要转译的 js 文件，只是通过 babel 进行转译输出，不通过 webpack。
+**返回** 返回当前实例。
+
+
+### css(files)
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。
+**说明** 指定要打包的 css 文件。
+**返回** 返回当前实例。
+
+
+### less(files)
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。
+**说明** 指定要打包的 less 文件。
+**返回** 返回当前实例。
+
+
+### sass(files)
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。
+**说明** 指定要打包的 sass 文件。
+**返回** 返回当前实例。
+
+### move(files)
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。
+**说明** 有时某些文件(夹)不想作处理，只是想简单地移动到输出目录，可使用此方法。
+**返回** 返回当前实例。
+
+### build()
+**参数** 无。
+**说明** 执行打包构建。
+**返回** 无。
