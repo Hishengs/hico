@@ -118,11 +118,7 @@ class Hico {
   setEntry (){
     // find entry files and flatten to array
     const files = util.getDirFiles(this.targetDir, file => {
-      let isIgnore = false;
-      this.ignoreFiles.forEach(ignoreFile => {
-        isIgnore = file.includes(ignoreFile);
-      });
-      return file.includes('-entry.js') && !isIgnore;
+      return file.includes('entry.js') && !this.isIgnore(file);
     });
     files.forEach(file => {
       const entryname = file.replace(this.targetDir, '').replace(/\\+/g, '/')/*.replace(path.extname(file), '')*/;
@@ -191,7 +187,7 @@ class Hico {
       if(util.isFile(file)){
         if(path.extname(file) !== '.js')return;
         // ignore webpack entry file
-        if(file.includes('-entry.js'))return;
+        if(file.includes('entry.js'))return;
         console.log(` ${index+1} building: ${file}`);
         const compiled = babel.transformFileSync(file, Object.assign({
           extends: path.join(__dirname, '../.babelrc'),

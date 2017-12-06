@@ -2,18 +2,18 @@ const Hico = require('../src');
 const hico = new Hico();
 const path = require('path');
 
-module.exports = hico.target(path.join(__dirname, './module'))
+module.exports = hico.target(path.join(__dirname, './frontend/page'))
                       .dist(path.join(__dirname, './dist'))
                       .ignore([
-                      	'./temp',
+                      	'./asset',
                       ])
                       .env('development')
-                      .js(['./moduleA', './moduleB'])
-                      .css('./moduleA/a.css')
-                      .less([
-                      	'./moduleA/index.less',
-                      	'./moduleB/index.less',
-                      ])
+                      // .js(['./moduleA', './moduleB'])
+                      // .css('./moduleA/a.css')
+                      // .less([
+                      // 	'./moduleA/index.less',
+                      // 	'./moduleB/index.less',
+                      // ])
                       /*.sass([
                       	./moduleA/test.sass'
                       ])*/
