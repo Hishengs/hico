@@ -18,23 +18,53 @@ const mkdirDeep = (distPath) => {
 
 // copy file
 const copyFile = (src, dist) => {
-	//
+	const fileData = fs.readFileSync(src, { encoding: 'utf8' });
+	mkdirDeep(path.dirname(dist)); // create dir of dist file
+	fs.writeFileSync(dist, fileData, { encoding: 'utf8' });
 };
 
 // copy directory
 const copyDir = (src, dist) => {
-	//
+	const files = getDirFiles(src);
+	files.forEach(file => {
+		copyFile(file, file.replace(src, dist));
+	});
 };
 
 // move file
 const moveFile = (src, dist) => {
-	//
+	copyFile(src, dist);
+	fs.unlinkSync(src);
 };
 
 // move directory
-const moveDirectory = (src, dist) => {
-	//
+const moveDir = (src, dist) => {
+	const files = getDirFiles(src);
+	files.forEach(file => {
+		moveFile(file, file.replace(src, dist));
+	});
 };
+
+// get files from dir
+const getDirFiles = (dirPath, match = null) => {
+  let paths = [];
+  const files = fs.readdirSync(dirPath);
+  for(let i=0, ilen=files.length; i<ilen; i++){
+    const fileName = files[i];
+    const filePath = path.join(dirPath, fileName);
+    const isFile = fs.statSync(filePath).isFile();
+    if(isFile){
+      if(match){
+        if(match(filePath)){
+          paths.push(filePath);
+        }
+      }else paths.push(filePath);
+    }else {
+      paths = paths.concat(getDirFiles(filePath, match));
+    }
+  }
+  return paths;
+}
 
 // is directory
 const isDir = (file) => {
@@ -49,7 +79,10 @@ const isFile = (file) => {
 module.exports = {
 	mkdirDeep,
 	copyFile,
-	copyFile,
+	copyDir,
+	moveFile,
+	moveDir,
 	isDir,
 	isFile,
+	getDirFiles,
 };

@@ -1,3 +1,3 @@
 cls
-webpack-dev-server --colors --hot --config=webpack-hot-update.config.js
+webpack-dev-server --inline --colors --hot --config=webpack-hot-update.config.js
 pause

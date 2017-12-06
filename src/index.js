@@ -43,10 +43,18 @@ class Hico {
   // ignore files
   ignore (ignoreFiles){
     this.ignoreFiles = [].concat(ignoreFiles).map(file => {
-      return path.normalize(file);
+      return path.resolve(this.targetDir, path.normalize(file));
     });
     return this;
   }
+
+  // set env
+  env (env){
+    this._env = env;
+    return this;
+  }
+
+  // =============== common functions ================
 
   // extract files
   extractFiles (files){
@@ -56,7 +64,7 @@ class Hico {
       if(_files.includes(file))return;
       if(util.isDir(file)){
         // _files.push(file);
-        _files = _files.concat(this.getDirFiles(file));
+        _files = _files.concat(util.getDirFiles(file));
       }else if(util.isFile(file)){
         _files.push(file);
       }else if((/(\/\*\/)+\*\./).test(file)){
@@ -66,48 +74,55 @@ class Hico {
     return _files;
   }
 
-  // set env
-  env (env){
-    this._env = env;
-    return this;
-  }
-
   hash (data){
     const md5 = crypto.createHash("md5");
     md5.update(data);
     return md5.digest('hex');
   }
 
-  getDirFiles (dirPath, match = null){
-    let paths = [];
-    const files = fs.readdirSync(dirPath);
-    for(let i=0, ilen=files.length; i<ilen; i++){
-      const fileName = files[i];
-      const filePath = path.join(dirPath, fileName);
-      const isFile = fs.statSync(filePath).isFile();
-      if(isFile){
-        if(match){
-          if(match(filePath)){
-            paths.push(filePath);
-          }
-        }else paths.push(filePath);
-      }else {
-        paths = paths.concat(this.getDirFiles(filePath, match));
+  // filter ignore files
+  /*filterIgnoreFiles (files){
+    return files.filter(file => {
+      return this.ignoreFiles.filter(ignoreFile => {
+        return file.includes(ignoreFile);
+      }).length;
+    });
+  }*/
+
+  // check if file is ignore
+  isIgnore (file){
+    let ignore = false;
+    for(let i=0, ilen=this.ignoreFiles.length; i<ilen; i++){
+      if(file.includes(this.ignoreFiles[i])){
+        ignore = true;
+        break;
       }
     }
-    return paths;
+    return ignore;
+  }
+
+  // copy files
+  copy (files){
+    files = [].concat(files);
+    files.map(file => path.resolve(this.targetDir, path.normalize(file))).forEach(file => {
+      if(util.isFile(file)){
+        util.copyFile(file, file.replace(this.targetDir, this.distDir));
+      }else if(util.isDir(file)){
+        util.copyDir(file, file.replace(this.targetDir, this.distDir));
+      }
+    });
   }
 
   // =============== for webpack building ================
 
   setEntry (){
     // find entry files and flatten to array
-    const files = this.getDirFiles(this.targetDir, file => {
+    const files = util.getDirFiles(this.targetDir, file => {
       let isIgnore = false;
       this.ignoreFiles.forEach(ignoreFile => {
         isIgnore = file.includes(ignoreFile);
       });
-      return file.includes('entry.js') && !isIgnore;
+      return file.includes('-entry.js') && !isIgnore;
     });
     files.forEach(file => {
       const entryname = file.replace(this.targetDir, '').replace(/\\+/g, '/')/*.replace(path.extname(file), '')*/;
@@ -136,7 +151,7 @@ class Hico {
       dist: this.distDir,
     });
 
-    this.buildMapFile(this.entry);
+    // this.buildMapFile(this.entry);
 
     return this.webpackConfig;
   }
@@ -156,52 +171,102 @@ class Hico {
     return this.webpackConfig;
   }
 
+  // =============== for js building ================
+
+  minifyJS (code){
+    const UglifyJS = require("uglify-es");
+    return UglifyJS.minify(code).code;
+  }
+
+  js (files, opt = {}){
+    console.log(`\n=============== js building ==============`);
+
+    files = [].concat(files).map(file => path.resolve(this.targetDir, path.normalize(file)));
+
+    // babel compile
+    const babel = require('babel-core');
+    files.forEach((file, index) => {
+      // check if ignore
+      if(this.isIgnore(file))return;
+      if(util.isFile(file)){
+        if(path.extname(file) !== '.js')return;
+        // ignore webpack entry file
+        if(file.includes('-entry.js'))return;
+        console.log(` ${index+1} building: ${file}`);
+        const compiled = babel.transformFileSync(file, Object.assign({
+          extends: path.join(__dirname, '../.babelrc'),
+          minified: this._env === 'production',
+          presets: ['env']
+        }, opt.babel || {}));
+        const dist = file.replace(this.targetDir, this.distDir);
+        util.mkdirDeep(path.dirname(dist));
+        fs.writeFileSync(dist, compiled.code, { encoding: 'utf8' });
+        // fs.writeFileSync(dist, this._env === 'production' ? this.minifyJS(compiled.code) : compiled.code, { encoding: 'utf8' });
+      }else if(util.isDir(file)){
+        this.js(util.getDirFiles(file));
+      }
+    });
+    return this;
+  }
+
   // =============== for style building ================
 
   // common style building
-  buildStyle (src, type, ext, transform){
+  buildStyle (files, type, ext, transform){
     console.log(`\n=============== ${type} building ==============`);
-
-    const files = [].concat(src).forEach((file, index) => {
-      file = path.normalize(file);
-      const fileDistPath = file.replace(this.targetDir, this.distDir).replace(ext, '.css');
-      const styleData = fs.readFileSync(file, { encoding: 'utf8' });
-      console.log(` ${index+1} building: ${file}`);
-      transform(styleData, file, fileDistPath);
+    files = [].concat(files).map(file => path.resolve(this.targetDir, path.normalize(file)));
+    files.forEach((file, index) => {
+      // check if ignore
+      if(this.isIgnore(file))return;
+      if(util.isFile(file)){
+        if(path.extname(file) !== ext)return;
+        const dist = file.replace(this.targetDir, this.distDir).replace(ext, '.css');
+        const styleData = fs.readFileSync(file, { encoding: 'utf8' });
+        console.log(` ${index+1} building: ${file}`);
+        transform(styleData, file, dist);
+      }else if(util.isDir(file)){
+        this.buildStyle(util.getDirFiles(file), type, ext, transform);
+      }
     });
   }
 
+  // for css minify
+  minifyCss (css){
+    const csso = require('csso');
+    return csso.minify(css).css;
+  }
+
   // build css
-  css (src){
-    this.buildStyle(src, 'css', '.css', (styleData, file, dist) => {
+  css (files){
+    this.buildStyle(files, 'css', '.css', (styleData, file, dist) => {
       util.mkdirDeep(path.dirname(dist));
-      fs.writeFileSync(dist, styleData, { encoding: 'utf8' });
+      fs.writeFileSync(dist, this._env === 'production' ? this.minifyCss(styleData) : styleData, { encoding: 'utf8' });
     });
     return this;
   }
 
   // build less
-  less (src){
+  less (files){
     const less = require('less');
-    this.buildStyle(src, 'less', '.less', (styleData, file, dist) => {
+    this.buildStyle(files, 'less', '.less', (styleData, file, dist) => {
       less.render(styleData, { paths: [path.dirname(file)] }).then(output => {
         util.mkdirDeep(path.dirname(dist));
-        fs.writeFileSync(dist, output.css, { encoding: 'utf8' });
+        fs.writeFileSync(dist, this._env === 'production' ? this.minifyCss(output.css) : output.css, { encoding: 'utf8' });
       });
     });
     return this;
   }
 
   // build sass
-  sass (src){
+  sass (files){
     const sass = require('node-sass');
-    this.buildStyle(src, 'less', '.less', (styleData, file, dist) => {
+    this.buildStyle(files, 'less', '.less', (styleData, file, dist) => {
       const compiledData = sass.renderSync({
         data: styleData,
         includePaths: [path.dirname(file)]
       });
       util.mkdirDeep(path.dirname(dist));
-      fs.writeFileSync(dist, compiledData, { encoding: 'utf8' });
+      fs.writeFileSync(dist, this._env === 'production' ? this.minifyCss(compiledData) : compiledData, { encoding: 'utf8' });
     });
     return this;
   }

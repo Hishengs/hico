@@ -3,6 +3,11 @@ A frontend solution for traditional website
 
 传统网站前端工程化实践方案
 
+## Install
+```js
+npm i --save-dev hico
+```
+
 ## Usage
 
 ### 1. 开发目录
@@ -104,8 +109,14 @@ webpack --progress --hide-modules --colors --config=webpack-dev.config.js
 **返回** 返回当前实例。<br/>
 
 
-### js(files)
-**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。<br/>
+### js(files, opt)
+**参数** <br/>
+```js
+files 单个文件(夹)路径或者文件(夹)路径数组。
+opt   配置项
+  |—— babel 传给 babel 的配置项，具体参数见：http://babeljs.io/docs/core-packages/#options
+```
+
 **说明** 指定要转译的 js 文件，只是通过 babel 进行转译输出，不通过 webpack。<br/>
 **返回** 返回当前实例。<br/>
 
@@ -127,9 +138,9 @@ webpack --progress --hide-modules --colors --config=webpack-dev.config.js
 **说明** 指定要打包的 sass 文件。<br/>
 **返回** 返回当前实例。<br/>
 
-### move(files)
+### copy(files)
 **参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。<br/>
-**说明** 有时某些文件(夹)不想作处理，只是想简单地移动到输出目录，可使用此方法。<br/>
+**说明** 有时某些文件(夹)不想作处理，只是想简单地复制到输出目录，可使用此方法。<br/>
 **返回** 返回当前实例。<br/>
 
 ### build()

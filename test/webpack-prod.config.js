@@ -4,6 +4,17 @@ const path = require('path');
 
 module.exports = hico.target(path.join(__dirname, './module'))
                       .dist(path.join(__dirname, './dist'))
-                      .ignore(path.join(__dirname, './module/temp'))
+                      .ignore([
+                      	'./temp',
+                      ])
                       .env('production')
+                      .js(['./moduleA', './moduleB'])
+                      .css('./moduleA/a.css')
+                      .less([
+                      	'./moduleA/index.less',
+                      	'./moduleB/index.less',
+                      ])
+                      /*.sass([
+                      	./moduleA/test.sass'
+                      ])*/
                       .build();

@@ -12,10 +12,10 @@ module.exports = (options = {}) => {
 	if(options.devServer){
 		const devServer = Object.assign({
 		  hot: true,
+		  inline: true,
 		  compress: true,
 		  port: parseInt(Math.random() * 10000),
-		  inline: true,
-		  contentBase: path.join(__dirname, '../'),  
+		  contentBase: options.devServer.contentBase || path.join(__dirname, '../'),  
 		}, options.devServer);
 
 		return Object.assign(base, {

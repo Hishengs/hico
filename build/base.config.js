@@ -6,7 +6,7 @@ module.exports = (options = {}) => {
   options = Object.assign({
     entry: {},
     dist: path.join(__dirname, '../dist'),
-    publicPath: '/dist/',
+    publicPath: 'dist',
   }, options || {});
   const plugins = [
     // new ExtractTextPlugin('[name].css'), 
