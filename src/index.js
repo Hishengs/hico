@@ -14,6 +14,7 @@ class Hico {
     this.distDir = null;
     this.ignoreFiles = [];
     this.webpackConfig = null;
+    this.style = {};
   }
 
   // set target resources directory
@@ -113,60 +114,6 @@ class Hico {
     });
   }
 
-  // =============== for webpack building ================
-
-  setEntry (){
-    // find entry files and flatten to array
-    const files = util.getDirFiles(this.targetDir, file => {
-      return file.includes('entry.js') && !this.isIgnore(file);
-    });
-    files.forEach(file => {
-      const entryname = file.replace(this.targetDir, '').replace(/\\+/g, '/')/*.replace(path.extname(file), '')*/;
-      this.entry[entryname] = file;
-    });
-  }
-
-  buildMapFile (entry){
-    const resourcesMap = {};
-    for(let key of Object.keys(entry)){
-      resourcesMap[entry[key]] = key;
-    }
-    fs.writeFileSync(path.join(process.cwd(), './resources-map.json'), JSON.stringify(resourcesMap, null, 2), { encoding: 'utf8' });
-  }
-
-  // build resources
-  build (watch = false){
-    console.log('\n=============== webpack building ==============');
-
-  	this.setEntry();
-    // console.log(JSON.stringify(this.entry, null, 2));
-    // return;
-
-    this.webpackConfig = baseConfig({
-      entry: this.entry,
-      dist: this.distDir,
-    });
-
-    // this.buildMapFile(this.entry);
-
-    return this.webpackConfig;
-  }
-
-  // hot update
-  hotUpdate (config = {}){
-    this.setEntry();
-
-    this.webpackConfig = devConfig({
-      entry: this.entry,
-      dist: this.distDir,
-      devServer: config,
-    });
-
-    this.buildMapFile(this.entry);
-
-    return this.webpackConfig;
-  }
-
   // =============== for js building ================
 
   minifyJS (code){
@@ -243,13 +190,18 @@ class Hico {
 
   // build less
   less (files){
-    const less = require('less');
+    /*const less = require('less');
     this.buildStyle(files, 'less', '.less', (styleData, file, dist) => {
       less.render(styleData, { paths: [path.dirname(file)] }).then(output => {
         util.mkdirDeep(path.dirname(dist));
         fs.writeFileSync(dist, this._env === 'production' ? this.minifyCss(output.css) : output.css, { encoding: 'utf8' });
       });
     });
+    return this;*/
+    files = this.flattenFiles(files);
+    this.addEntries(files);
+    this.style.lessFiles = files;
+    // this.style.lessFiles = files.map(file => file.replace(this.targetDir, ''));
     return this;
   }
 
@@ -265,6 +217,98 @@ class Hico {
       fs.writeFileSync(dist, this._env === 'production' ? this.minifyCss(compiledData) : compiledData, { encoding: 'utf8' });
     });
     return this;
+  }
+
+  // =============== for webpack building ================
+
+  addEntries (files){
+    files.forEach(file => {
+      this.addEntry(file.replace(this.targetDir, ''), file);
+    });
+  }
+
+  addEntry (filename, filepath){
+    const ext = path.extname(filename);
+    if((/\.(css|less|sass|scss)$/).test(ext)){ // stylesheet
+      if(this.entry['puppet']){
+        this.entry['puppet'].push(filepath);
+      }else this.entry['puppet'] = [path.join(__dirname, './puppet.js') ,filepath];
+    }else {
+      this.entry[filename] = filepath;
+    }
+    return this;
+  }
+
+  setEntry (){
+    // find entry files and flatten to array
+    let files = util.getDirFiles(this.targetDir, file => {
+      return file.includes('entry.js') && !this.isIgnore(file);
+    });
+    files = this.normalizeFiles(files);
+    files.forEach(file => {
+      const entryname = file.replace(this.targetDir, '');
+      this.entry[entryname] = file;
+    });
+  }
+
+  buildMapFile (entry){
+    const resourcesMap = {};
+    for(let key of Object.keys(entry)){
+      resourcesMap[entry[key]] = key;
+    }
+    fs.writeFileSync(path.join(process.cwd(), './resources-map.json'), JSON.stringify(resourcesMap, null, 2), { encoding: 'utf8' });
+  }
+
+  // build resources
+  build (watch = false){
+    console.log('\n=============== webpack building ==============');
+
+    this.setEntry();
+
+    // console.log(' Entry: \n', JSON.stringify(this.entry, null, 2));
+
+    this.webpackConfig = baseConfig({
+      entry: this.entry,
+      dist: this.distDir,
+      style: this.style,
+    });
+
+    // this.buildMapFile(this.entry);
+
+    return this.webpackConfig;
+  }
+
+  // hot update
+  hotUpdate (config = {}){
+    this.setEntry();
+
+    this.webpackConfig = devConfig({
+      entry: this.entry,
+      dist: this.distDir,
+      devServer: config,
+    });
+
+    this.buildMapFile(this.entry);
+
+    return this.webpackConfig;
+  }
+
+  // normalize files path
+  normalizeFiles (files){
+    return files.map(file => path.resolve(this.targetDir, path.normalize(file)));
+  }
+
+  flattenFiles (files){
+    files = [].concat(files);
+    let _files = [];
+    this.normalizeFiles(files).forEach(file => {
+      if(util.isFile(file)){
+        _files.push(file);
+      }else if(util.isDir(file)){
+        _files = _files.concat(util.getDirFiles(file));
+      }
+    });
+    return _files;
   }
 };
 

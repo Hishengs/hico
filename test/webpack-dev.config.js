@@ -3,21 +3,25 @@ const hico = new Hico();
 const path = require('path');
 
 module.exports = hico.target(path.join(__dirname, './frontend/page'))
-                      .dist(path.join(__dirname, './dist'))
-                      .ignore([
-                      	'./asset',
-                      ])
-                      .env('development')
-                      // .js(['./moduleA', './moduleB'])
-                      // .css('./moduleA/a.css')
-                      // .less([
-                      // 	'./moduleA/index.less',
-                      // 	'./moduleB/index.less',
-                      // ])
-                      /*.sass([
-                      	./moduleA/test.sass'
-                      ])*/
-                      .build();
+.dist(path.join(__dirname, './dist'))
+.less('./index.less').build();
+
+// module.exports = hico.target(path.join(__dirname, './frontend/page'))
+//                       .dist(path.join(__dirname, './dist'))
+//                       .ignore([
+//                       	'./asset',
+//                       ])
+//                       .env('development')
+//                       // .js(['./moduleA', './moduleB'])
+//                       // .css('./moduleA/a.css')
+//                       // .less([
+//                       // 	'./moduleA/index.less',
+//                       // 	'./moduleB/index.less',
+//                       // ])
+//                       /*.sass([
+//                       	./moduleA/test.sass'
+//                       ])*/
+//                       .build();
 
 
 /*target
