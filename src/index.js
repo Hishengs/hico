@@ -1,10 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 const webpack = require('webpack');
 const util = require('./util.js');
-const baseConfig = require('../build/base.config.js');
 const devConfig = require('../build/dev.config.js');
+const prodConfig = require('../build/prod.config.js');
 
 class Hico {
 	constructor (){
@@ -13,8 +12,25 @@ class Hico {
     this.targetDir = null;
     this.distDir = null;
     this.ignoreFiles = [];
-    this.webpackConfig = null;
-    this.style = {};
+    this.webpackConfig = {};
+    this.style = {
+      css: {
+        files: [],
+        config: {},
+      },
+      less: {
+        files: [],
+        config: {},
+      },
+      sass: {
+        files: [],
+        config: {},
+      },
+      stylus: {
+        files: [],
+        config: {},
+      },
+    };
   }
 
   // set target resources directory
@@ -57,39 +73,6 @@ class Hico {
 
   // =============== common functions ================
 
-  // extract files
-  extractFiles (files){
-    let _files = [];
-    files.forEach(file => {
-      file = path.normalize(file);
-      if(_files.includes(file))return;
-      if(util.isDir(file)){
-        // _files.push(file);
-        _files = _files.concat(util.getDirFiles(file));
-      }else if(util.isFile(file)){
-        _files.push(file);
-      }else if((/(\/\*\/)+\*\./).test(file)){
-        // may be like this '/xx/yy/*.js'
-      }
-    });
-    return _files;
-  }
-
-  hash (data){
-    const md5 = crypto.createHash("md5");
-    md5.update(data);
-    return md5.digest('hex');
-  }
-
-  // filter ignore files
-  /*filterIgnoreFiles (files){
-    return files.filter(file => {
-      return this.ignoreFiles.filter(ignoreFile => {
-        return file.includes(ignoreFile);
-      }).length;
-    });
-  }*/
-
   // check if file is ignore
   isIgnore (file){
     let ignore = false;
@@ -102,7 +85,7 @@ class Hico {
     return ignore;
   }
 
-  // copy files
+  // API: COPY, copy files
   copy (files){
     files = [].concat(files);
     files.map(file => path.resolve(this.targetDir, path.normalize(file))).forEach(file => {
@@ -114,6 +97,24 @@ class Hico {
     });
   }
 
+  // normalize files path
+  normalizeFiles (files){
+    return files.map(file => path.resolve(this.targetDir, path.normalize(file)));
+  }
+
+  flattenFiles (files){
+    files = [].concat(files);
+    let _files = [];
+    this.normalizeFiles(files).forEach(file => {
+      if(util.isFile(file)){
+        _files.push(file);
+      }else if(util.isDir(file)){
+        _files = _files.concat(util.getDirFiles(file));
+      }
+    });
+    return _files;
+  }
+
   // =============== for js building ================
 
   minifyJS (code){
@@ -122,6 +123,9 @@ class Hico {
   }
 
   js (files, opt = {}){
+    console.log('\n API: js is not available at this version');
+    process.exit();
+
     console.log(`\n=============== js building ==============`);
 
     files = [].concat(files).map(file => path.resolve(this.targetDir, path.normalize(file)));
@@ -154,68 +158,51 @@ class Hico {
 
   // =============== for style building ================
 
-  // common style building
-  buildStyle (files, type, ext, transform){
-    console.log(`\n=============== ${type} building ==============`);
-    files = [].concat(files).map(file => path.resolve(this.targetDir, path.normalize(file)));
-    files.forEach((file, index) => {
-      // check if ignore
-      if(this.isIgnore(file))return;
-      if(util.isFile(file)){
-        if(path.extname(file) !== ext)return;
-        const dist = file.replace(this.targetDir, this.distDir).replace(ext, '.css');
-        const styleData = fs.readFileSync(file, { encoding: 'utf8' });
-        console.log(` ${index+1} building: ${file}`);
-        transform(styleData, file, dist);
-      }else if(util.isDir(file)){
-        this.buildStyle(util.getDirFiles(file), type, ext, transform);
-      }
-    });
+  packStyle (files, type){
+    files = this.flattenFiles(files);
+    this.addEntries(files);
+    this.style[type].files = files;
   }
 
-  // for css minify
-  minifyCss (css){
-    const csso = require('csso');
-    return csso.minify(css).css;
+  checkStyleLoader (type){
+    try {
+      if(type === 'less'){
+        require('less') && require('less-loader');
+      }else if(type === 'sass'){
+        require('sass') && require('sass-loader');
+      }else if(type === 'stylus'){
+        require('stylus') && require('stylus-loader');
+      }
+    }catch(e) {
+      console.log(`\n please install depedencies first for .${type}`);
+      process.exit();
+    }
   }
 
   // build css
   css (files){
-    this.buildStyle(files, 'css', '.css', (styleData, file, dist) => {
-      util.mkdirDeep(path.dirname(dist));
-      fs.writeFileSync(dist, this._env === 'production' ? this.minifyCss(styleData) : styleData, { encoding: 'utf8' });
-    });
+    this.packStyle(files, 'css');
     return this;
   }
 
   // build less
   less (files){
-    /*const less = require('less');
-    this.buildStyle(files, 'less', '.less', (styleData, file, dist) => {
-      less.render(styleData, { paths: [path.dirname(file)] }).then(output => {
-        util.mkdirDeep(path.dirname(dist));
-        fs.writeFileSync(dist, this._env === 'production' ? this.minifyCss(output.css) : output.css, { encoding: 'utf8' });
-      });
-    });
-    return this;*/
-    files = this.flattenFiles(files);
-    this.addEntries(files);
-    this.style.lessFiles = files;
-    // this.style.lessFiles = files.map(file => file.replace(this.targetDir, ''));
+    this.checkStyleLoader('less');
+    this.packStyle(files, 'less');
     return this;
   }
 
   // build sass
   sass (files){
-    const sass = require('node-sass');
-    this.buildStyle(files, 'less', '.less', (styleData, file, dist) => {
-      const compiledData = sass.renderSync({
-        data: styleData,
-        includePaths: [path.dirname(file)]
-      });
-      util.mkdirDeep(path.dirname(dist));
-      fs.writeFileSync(dist, this._env === 'production' ? this.minifyCss(compiledData) : compiledData, { encoding: 'utf8' });
-    });
+    this.checkStyleLoader('sass');
+    this.packStyle(files, 'sass');
+    return this;
+  }
+
+  // build stylus
+  stylus (files){
+    this.checkStyleLoader('stylus');
+    this.packStyle(files, 'stylus');
     return this;
   }
 
@@ -229,86 +216,58 @@ class Hico {
 
   addEntry (filename, filepath){
     const ext = path.extname(filename);
-    if((/\.(css|less|sass|scss)$/).test(ext)){ // stylesheet
-      if(this.entry['puppet']){
-        this.entry['puppet'].push(filepath);
-      }else this.entry['puppet'] = [path.join(__dirname, './puppet.js') ,filepath];
+    if((/\.(css|less|s[ac]ss|styl[us])$/).test(ext)){ // stylesheet
+      if(this.entry['style-puppet']){
+        this.entry['style-puppet'].push(filepath);
+      }else this.entry['style-puppet'] = [path.join(__dirname, './style-puppet.js') , filepath];
     }else {
-      this.entry[filename] = filepath;
+      this.entry[filename.replace(ext, '')] = filepath;
     }
     return this;
   }
 
-  setEntry (){
+  // find and set entries from dist
+  setWebpackEntries (){
     // find entry files and flatten to array
     let files = util.getDirFiles(this.targetDir, file => {
       return file.includes('entry.js') && !this.isIgnore(file);
     });
     files = this.normalizeFiles(files);
-    files.forEach(file => {
-      const entryname = file.replace(this.targetDir, '');
-      this.entry[entryname] = file;
-    });
-  }
-
-  buildMapFile (entry){
-    const resourcesMap = {};
-    for(let key of Object.keys(entry)){
-      resourcesMap[entry[key]] = key;
-    }
-    fs.writeFileSync(path.join(process.cwd(), './resources-map.json'), JSON.stringify(resourcesMap, null, 2), { encoding: 'utf8' });
+    this.addEntries(files);
   }
 
   // build resources
-  build (watch = false){
-    console.log('\n=============== webpack building ==============');
+  build (opt = {}){
+    console.log('\n=============== webpack building ==============\n');
 
-    this.setEntry();
+    this.setWebpackEntries();
 
-    // console.log(' Entry: \n', JSON.stringify(this.entry, null, 2));
-
-    this.webpackConfig = baseConfig({
+    // build webpack config
+    const makeConfig = this._env === 'production' ? prodConfig : devConfig;
+    this.webpackConfig = makeConfig({
       entry: this.entry,
+      target: this.targetDir,
       dist: this.distDir,
       style: this.style,
+      watch: !!opt.watch,
+      hotUpdate: opt.hotUpdate,
     });
 
-    // this.buildMapFile(this.entry);
-
     return this.webpackConfig;
+  }
+
+  // watch
+  watch (){
+    this.build({
+      watch: true,
+    });
   }
 
   // hot update
   hotUpdate (config = {}){
-    this.setEntry();
-
-    this.webpackConfig = devConfig({
-      entry: this.entry,
-      dist: this.distDir,
-      devServer: config,
+    this.build({
+      hotUpdate: config,
     });
-
-    this.buildMapFile(this.entry);
-
-    return this.webpackConfig;
-  }
-
-  // normalize files path
-  normalizeFiles (files){
-    return files.map(file => path.resolve(this.targetDir, path.normalize(file)));
-  }
-
-  flattenFiles (files){
-    files = [].concat(files);
-    let _files = [];
-    this.normalizeFiles(files).forEach(file => {
-      if(util.isFile(file)){
-        _files.push(file);
-      }else if(util.isDir(file)){
-        _files = _files.concat(util.getDirFiles(file));
-      }
-    });
-    return _files;
   }
 };
 
