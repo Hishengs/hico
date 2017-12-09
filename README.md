@@ -3,13 +3,11 @@ A frontend solution for traditional website
 
 传统网站前端工程化实践方案
 
-<br/><br/>
 ## Install
 ```js
 npm i --save-dev hico
 ```
 
-<br/><br/>
 ## Usage
 
 ### 1. 目录结构
@@ -108,7 +106,7 @@ document.getElementsByTagName('h1')[0].innerText = 'A';
 </html>
 ```
 
-<br/><br/>
+<br/>
 ### 2. 构建你的工程
 
 创建 `webpack-dev.config.js`
@@ -134,8 +132,7 @@ webpack --progress --hide-modules --colors --config=webpack-dev.config.js
 
 双击 `build-dev.bat` 执行打包。
 
-
-<br/><br/>
+<br/>
 ## Go Deep
 
 ### 忽略文件或者文件夹
@@ -220,8 +217,7 @@ hico.src(srcDir).dist(distDir).js(['./script/a', './script/a/index.js'], {
 hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 ```
 
-
-<br/><br/>
+<br/>
 ## API
 
 ### src(srcDir)
