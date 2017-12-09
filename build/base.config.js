@@ -8,10 +8,10 @@ const WebpackHookPlugin = require('../src/plugin/webpack-hook-plugin.js');
 module.exports = (config = {}) => {
 
   config = merge({
-    extractStyle: false,  // extract style from module
-    extractStyleConfig: '[name].css',
+    extractStyle: true,  // extract style from module
+    extractStyleConfig: '[name]_[hash:8].css',
     entry: {},
-    target: '',
+    src: '',
     dist: path.join(__dirname, '../dist'),
     publicPath: 'dist',
     style: {},
@@ -20,12 +20,16 @@ module.exports = (config = {}) => {
   let plugins = [
     new WebpackHookPlugin('done', function(){
       // remove style-puppet.js from dist
-      fs.unlinkSync(path.join(config.dist, 'style-puppet.js'));
+      try {
+        fs.unlinkSync(path.join(config.dist, 'style-puppet.js'));
+      }catch (e){}
       console.log('\n\n============== webpack building done ==============\n');
     }),
   ];
+  let CommonExtractText;
   if(config.extractStyle){
-    plugins.push(new ExtractTextPlugin(config.extractStyleConfig));
+    CommonExtractText = new ExtractTextPlugin(config.extractStyleConfig);
+    plugins.push(CommonExtractText);
   }
 
   const rules = [
@@ -41,17 +45,26 @@ module.exports = (config = {}) => {
     },
     {
       test: /\.less$/,
-      use: ['style-loader', 'css-loader', 'less-loader'],
+      use: config.extractStyle ? CommonExtractText.extract({
+        fallback: 'style-loader',
+        use: ['css-loader', 'less-loader'],
+      }) : ['style-loader', 'css-loader', 'less-loader'],
       exclude: [],
     },
     {
       test: /\.s[ac]ss$/,
-      use: ['style-loader', 'css-loader', 'sass-loader'],
+      use: config.extractStyle ? CommonExtractText.extract({
+        fallback: 'style-loader',
+        use: ['css-loader', 'sass-loader'],
+      }) : ['style-loader', 'css-loader', 'sass-loader'],
       exclude: [],
     },
     {
       test: /\.styl$/,
-      use: ['style-loader', 'css-loader', 'stylus-loader'],
+      use: config.extractStyle ? CommonExtractText.extract({
+        fallback: 'style-loader',
+        use: ['css-loader', 'stylus-loader'],
+      }) : ['style-loader', 'css-loader', 'stylus-loader'],
       exclude: [],
     },
     {
@@ -82,7 +95,7 @@ module.exports = (config = {}) => {
     config.style[type].files.forEach(file => {
       styleRule[type].exclude.push(file);
 
-      const ExtractTextIns = new ExtractTextPlugin(file.replace(config.target, ''));
+      const ExtractTextIns = new ExtractTextPlugin(file.replace(config.src, ''));
 
       plugins.push(ExtractTextIns);
 
@@ -147,8 +160,8 @@ module.exports = (config = {}) => {
     entry: config.entry,
     output: {
       path: config.dist,
-      filename: '[name].js',
-      chunkFilename: '[name].[chunkhash:4].chunk.js',
+      filename: '[name]_[hash:8].js',
+      chunkFilename: '[name]_[chunkhash:8].chunk.js',
       publicPath: config.publicPath,
     },
     plugins,

@@ -9,7 +9,7 @@ class Hico {
 	constructor (){
     this._env = 'development';
   	this.entry = {};
-    this.targetDir = null;
+    this.srcDir = null;
     this.distDir = null;
     this.ignoreFiles = [];
     this.webpackConfig = {};
@@ -33,13 +33,13 @@ class Hico {
     };
   }
 
-  // set target resources directory
-  target (targetDir){
+  // set resources directory
+  src (srcDir){
     // check if is directory and exists
-    if(fs.existsSync(targetDir) && util.isDir(targetDir)){
-      this.targetDir = targetDir;
+    if(fs.existsSync(srcDir) && util.isDir(srcDir)){
+      this.srcDir = srcDir;
       return this;
-    }else throw new Error('invalid target');
+    }else throw new Error('invalid src directory');
   }
 
   // set dist output directory
@@ -60,7 +60,7 @@ class Hico {
   // ignore files
   ignore (ignoreFiles){
     this.ignoreFiles = [].concat(ignoreFiles).map(file => {
-      return path.resolve(this.targetDir, path.normalize(file));
+      return path.resolve(this.srcDir, path.normalize(file));
     });
     return this;
   }
@@ -88,18 +88,18 @@ class Hico {
   // API: COPY, copy files
   copy (files){
     files = [].concat(files);
-    files.map(file => path.resolve(this.targetDir, path.normalize(file))).forEach(file => {
+    files.map(file => path.resolve(this.srcDir, path.normalize(file))).forEach(file => {
       if(util.isFile(file)){
-        util.copyFile(file, file.replace(this.targetDir, this.distDir));
+        util.copyFile(file, file.replace(this.srcDir, this.distDir));
       }else if(util.isDir(file)){
-        util.copyDir(file, file.replace(this.targetDir, this.distDir));
+        util.copyDir(file, file.replace(this.srcDir, this.distDir));
       }
     });
   }
 
   // normalize files path
   normalizeFiles (files){
-    return files.map(file => path.resolve(this.targetDir, path.normalize(file)));
+    return files.map(file => path.resolve(this.srcDir, path.normalize(file)));
   }
 
   flattenFiles (files){
@@ -128,7 +128,7 @@ class Hico {
 
     console.log(`\n=============== js building ==============`);
 
-    files = [].concat(files).map(file => path.resolve(this.targetDir, path.normalize(file)));
+    files = [].concat(files).map(file => path.resolve(this.srcDir, path.normalize(file)));
 
     // babel compile
     const babel = require('babel-core');
@@ -138,14 +138,14 @@ class Hico {
       if(util.isFile(file)){
         if(path.extname(file) !== '.js')return;
         // ignore webpack entry file
-        if(file.includes('entry.js'))return;
+        if(file.includes('index.js'))return;
         console.log(` ${index+1} building: ${file}`);
         const compiled = babel.transformFileSync(file, Object.assign({
           extends: path.join(__dirname, '../.babelrc'),
           minified: this._env === 'production',
           presets: ['env']
         }, opt.babel || {}));
-        const dist = file.replace(this.targetDir, this.distDir);
+        const dist = file.replace(this.srcDir, this.distDir);
         util.mkdirDeep(path.dirname(dist));
         fs.writeFileSync(dist, compiled.code, { encoding: 'utf8' });
         // fs.writeFileSync(dist, this._env === 'production' ? this.minifyJS(compiled.code) : compiled.code, { encoding: 'utf8' });
@@ -210,7 +210,7 @@ class Hico {
 
   addEntries (files){
     files.forEach(file => {
-      this.addEntry(file.replace(this.targetDir, ''), file);
+      this.addEntry(file.replace(this.srcDir, ''), file);
     });
   }
 
@@ -229,8 +229,8 @@ class Hico {
   // find and set entries from dist
   setWebpackEntries (){
     // find entry files and flatten to array
-    let files = util.getDirFiles(this.targetDir, file => {
-      return file.includes('entry.js') && !this.isIgnore(file);
+    let files = util.getDirFiles(this.srcDir, file => {
+      return file.includes('index.js') && !this.isIgnore(file);
     });
     files = this.normalizeFiles(files);
     this.addEntries(files);
@@ -246,7 +246,7 @@ class Hico {
     const makeConfig = this._env === 'production' ? prodConfig : devConfig;
     this.webpackConfig = makeConfig({
       entry: this.entry,
-      target: this.targetDir,
+      src: this.srcDir,
       dist: this.distDir,
       style: this.style,
       watch: !!opt.watch,

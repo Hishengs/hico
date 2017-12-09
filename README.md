@@ -3,11 +3,13 @@ A frontend solution for traditional website
 
 传统网站前端工程化实践方案
 
+<br/><br/>
 ## Install
 ```js
 npm i --save-dev hico
 ```
 
+<br/><br/>
 ## Usage
 
 ### 1. 目录结构
@@ -81,7 +83,6 @@ window.app = new Vue({
 ```
 
 
-
 再看看模块 a：
 
 `index.entry.js`
@@ -107,9 +108,7 @@ document.getElementsByTagName('h1')[0].innerText = 'A';
 </html>
 ```
 
-
-
-
+<br/><br/>
 ### 2. 构建你的工程
 
 创建 `webpack-dev.config.js`
@@ -119,7 +118,7 @@ const Hico = require('hico');
 const hico = new Hico();
 const path = require('path');
 
-module.exports = hico.target(path.join(__dirname, './frontend/page'))  // 指定构建入口目录
+module.exports = hico.src(path.join(__dirname, './frontend/page'))  // 指定构建入口目录
                       .dist(path.join(__dirname, './dist'))            // 指定构建输出目录
                       .ignore(['./temp'])                              // 忽略掉临时性目录
                       .env('development')                              // 设置打包环境
@@ -136,7 +135,7 @@ webpack --progress --hide-modules --colors --config=webpack-dev.config.js
 双击 `build-dev.bat` 执行打包。
 
 
-
+<br/><br/>
 ## Go Deep
 
 ### 忽略文件或者文件夹
@@ -144,9 +143,8 @@ webpack --progress --hide-modules --colors --config=webpack-dev.config.js
 有时候开发目录下会有一些临时目录或者冗余但不能删除的文件（夹），此时这些文件（夹）是不应该被包含进构建过程的，可以指定忽略这些文件（夹）：
 
 ```js
-hico.target(targetDir).dist(distDir).ignore(['./temp']).build();
+hico.src(srcDir).dist(distDir).ignore(['./temp']).build();
 ```
-
 
 
 ### 指定构建环境
@@ -154,11 +152,8 @@ hico.target(targetDir).dist(distDir).ignore(['./temp']).build();
 > 默认 env 是 development，可以指定为 production，不同的环境会触发不同的构建策略。
 
 ```js
-hico.target(targetDir).dist(distDir).env('production').build();
+hico.src(srcDir).dist(distDir).env('production').build();
 ```
-
-
-
 
 
 ### 打包样式文件
@@ -168,7 +163,7 @@ hico.target(targetDir).dist(distDir).env('production').build();
 #### css
 
 ```js
-hico.target(targetDir).dist(distDir).css(['./style']).build();
+hico.src(srcDir).dist(distDir).css(['./style']).build();
 ```
 
 会将 `style` 目录下所有的 `.css` 文件打包到输出目录。
@@ -176,29 +171,26 @@ hico.target(targetDir).dist(distDir).css(['./style']).build();
 也可以指定单个文件：
 
 ```js
-hico.target(targetDir).dist(distDir).css(['./style/common.css']).build();
+hico.src(srcDir).dist(distDir).css(['./style/common.css']).build();
 ```
-
 
 
 #### less
 
 ```js
-hico.target(targetDir).dist(distDir).less(['./style/a', './style/a/index.less']).build();
+hico.src(srcDir).dist(distDir).less(['./style/a', './style/a/index.less']).build();
 ```
 
 **Hico** 最终会将 less 文件转译为 `.css` 文件到输出目录。
 
 
-
 #### sass
 
 ```js
-hico.target(targetDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build();
+hico.src(srcDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build();
 ```
 
 **Hico** 最终会将 sass 文件转译为 `.css` 文件到输出目录。
-
 
 
 ### 打包 js 文件
@@ -206,13 +198,13 @@ hico.target(targetDir).dist(distDir).sass(['./style/a', './style/a/index.sass'])
 有些脚本同样也可以不经过 webpack 构建，而只是通过 babel 转译最终输出到目标目录：
 
 ```js
-hico.target(targetDir).dist(distDir).js(['./script/a', './script/a/index.js']).build();
+hico.src(srcDir).dist(distDir).js(['./script/a', './script/a/index.js']).build();
 ```
 
 通过 `opt` 参数，你可以指定 babel 的转译行为：
 
 ```js
-hico.target(targetDir).dist(distDir).js(['./script/a', './script/a/index.js'], {
+hico.src(srcDir).dist(distDir).js(['./script/a', './script/a/index.js'], {
   babel: { // your babel config writes here
     minify: true,
   }
@@ -220,23 +212,20 @@ hico.target(targetDir).dist(distDir).js(['./script/a', './script/a/index.js'], {
 ```
 
 
-
 ### 打包其他文件
 
 既不是样式文件，也不是脚本文件，如果也有同步的需求，可以调用简单的 `copy` 接口复制到输出目录：
 
 ```js
-hico.target(targetDir).dist(distDir).copy(['./font', './image/bg.png']).build();
+hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 ```
 
 
-
-
-
+<br/><br/>
 ## API
 
-### target(targetDir)
-**参数** `targetDir` 开发目录。<br/>
+### src(srcDir)
+**参数** `srcDir` 开发目录。<br/>
 **说明** 指定你的开发目录。<br/>
 **返回** 返回当前实例。<br/>
 
