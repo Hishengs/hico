@@ -237,21 +237,28 @@ class Hico {
   }
 
   // build resources
-  build (opt = {}){
+  build (config = {}){
+    config = Object.assign({
+      watch: false,
+      hotUpdate: false,
+      extractStyle: true,
+      extractStyleConfig: '[name].css',
+      publicPath: 'dist',
+      env: this._env,
+    }, config);
+
     console.log('\n=============== webpack building ==============\n');
 
     this.setWebpackEntries();
 
     // build webpack config
     const makeConfig = this._env === 'production' ? prodConfig : devConfig;
-    this.webpackConfig = makeConfig({
+    this.webpackConfig = makeConfig(Object.assign({
       entry: this.entry,
       src: this.srcDir,
       dist: this.distDir,
       style: this.style,
-      watch: !!opt.watch,
-      hotUpdate: opt.hotUpdate,
-    });
+    }, config));
 
     return this.webpackConfig;
   }

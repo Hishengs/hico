@@ -10,7 +10,7 @@ module.exports = (config = {}) => {
     'process.env.NODE_ENV': JSON.stringify('production')
   }));
 
-  // monify code
+  // minify code
   base.plugins.push(new MinifyPlugin({}, {
     comments: false,
     sourceMap: true

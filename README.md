@@ -122,14 +122,13 @@ module.exports = hico.src(path.join(__dirname, './frontend/page'))  // 指定构
                       .build();                                        // 开始打包
 ```
 
-创建 `build-dev.bat`
+编辑你的 `package.json`，添加以下命令
 
-```bat
-cls
-webpack --progress --hide-modules --colors --config=webpack-dev.config.js
+```json
+"build-dev": "webpack --progress --hide-modules --colors --config=webpack-dev.config.js",
 ```
 
-双击 `build-dev.bat` 执行打包。
+在项目目录下执行 `npm run build-dev` 构建打包。
 
 <br/>
 
@@ -190,25 +189,6 @@ hico.src(srcDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build
 **Hico** 最终会将 sass 文件转译为 `.css` 文件到输出目录。
 
 
-### 打包 js 文件
-
-有些脚本同样也可以不经过 webpack 构建，而只是通过 babel 转译最终输出到目标目录：
-
-```js
-hico.src(srcDir).dist(distDir).js(['./script/a', './script/a/index.js']).build();
-```
-
-通过 `opt` 参数，你可以指定 babel 的转译行为：
-
-```js
-hico.src(srcDir).dist(distDir).js(['./script/a', './script/a/index.js'], {
-  babel: { // your babel config writes here
-    minify: true,
-  }
-}).build();
-```
-
-
 ### 打包其他文件
 
 既不是样式文件，也不是脚本文件，如果也有同步的需求，可以调用简单的 `copy` 接口复制到输出目录：
@@ -245,18 +225,6 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 **返回** 返回当前实例。<br/>
 
 
-### js(files, opt)
-**参数** <br/>
-```js
-files 单个文件(夹)路径或者文件(夹)路径数组。
-opt   配置项
-  |—— babel 传给 babel 的配置项，具体参数见：http://babeljs.io/docs/core-packages/#options
-```
-
-**说明** 指定要转译的 js 文件，只是通过 babel 进行转译输出，不通过 webpack。<br/>
-**返回** 返回当前实例。<br/>
-
-
 ### css(files)
 **参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。<br/>
 **说明** 指定要打包的 css 文件。<br/>
@@ -279,7 +247,25 @@ opt   配置项
 **说明** 有时某些文件(夹)不想作处理，只是想简单地复制到输出目录，可使用此方法。<br/>
 **返回** 返回当前实例。<br/>
 
-### build()
-**参数** 无。<br/>
+### build(config)
+**参数** <br/>
+```js
+config = {
+  extractStyle: true,                 // 是否提取单独的样式文件
+  extractStyleConfig: '[name].css',   // extract-text-plugin 配置
+  publicPath: 'dist',                 // 公共资源默认前缀
+}
+```
+
 **说明** 执行打包构建。<br/>
 **返回** 无。<br/>
+
+<br/>
+
+## TODO
+1. 支持热更新。
+
+<br/>
+
+## License
+under [MIT](http://opensource.org/licenses/MIT)
