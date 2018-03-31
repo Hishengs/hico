@@ -8,9 +8,9 @@ const path = require('path');
 
 module.exports = hico.src(path.join(__dirname, './frontend/page'))
                       .dist(path.join(__dirname, './dist'))
-                      .ignore([
+                      /*.ignore([
                       	'./a',
-                      ])
+                      ])*/
                       .env('development')
                       // .js(['./moduleA', './moduleB'])
                       /*.css('./css.css')
@@ -20,7 +20,7 @@ module.exports = hico.src(path.join(__dirname, './frontend/page'))
                       /*.sass([
                       	./moduleA/test.sass'
                       ])*/
-                      .build();
+                      .watch();
 
 
 /*src

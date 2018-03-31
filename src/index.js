@@ -241,7 +241,7 @@ class Hico {
     config = Object.assign({
       watch: false,
       hotUpdate: false,
-      extractStyle: true,
+      extractStyle: false,
       extractStyleConfig: '[name].css',
       publicPath: 'dist',
       env: this._env,
@@ -265,7 +265,7 @@ class Hico {
 
   // watch
   watch (){
-    this.build({
+    return this.build({
       watch: true,
     });
   }

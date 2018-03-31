@@ -8,6 +8,10 @@ module.exports = (config = {}) => {
 	base.plugins.push(new webpack.DefinePlugin({
 	  'process.env.NODE_ENV': JSON.stringify('development')
 	}));
+	// if watch mode
+	if(config.watch){
+		base.watch = true;
+	}
 
 	// if(config.devServer){
 	// 	const devServer = Object.assign({

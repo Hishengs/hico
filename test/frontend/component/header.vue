@@ -9,7 +9,7 @@
 		name: 'x-header',
 		data (){
 			return {
-				siteName: 'Hico Test',
+				siteName: 'Hico Testxxx',
 			};
 		},
 	};
