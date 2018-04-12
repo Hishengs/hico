@@ -1,6 +1,6 @@
 module.exports = {
   "extends": "airbnb-base",
-  "plugins": ["html"],
+  // "plugins": ["html"],
   "rules": {
     "linebreak-style": ["error", "windows"],
     // 该规则推荐文件扩展名忽略
@@ -23,5 +23,15 @@ module.exports = {
     "space-before-function-paren": "off",
     // 在函数体花括号前必须有一个空格
     "space-before-blocks": "off",
+    // 关键词之后必须有一个空格
+    "keyword-spacing": "off",
+    "no-else-return": "off",
+    "no-lonely-if": "off",
+    "no-plusplus": "off",
+    // 不允许给参数赋值
+    "no-param-reassign": "off",
+    "class-methods-use-this": "off",
+    "import/no-dynamic-require": "off",
+    "global-require": "off",
   },
 };

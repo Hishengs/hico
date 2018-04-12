@@ -1,14 +1,14 @@
 const fs = require('fs');
 const path = require('path');
-const webpack = require('webpack');
+const crypto = require('crypto');
 const util = require('./util.js');
 const devConfig = require('../build/dev.config.js');
 const prodConfig = require('../build/prod.config.js');
 
 class Hico {
-	constructor (){
+  constructor (){
     this._env = 'development';
-  	this.entry = {};
+    this.entry = {};
     this.srcDir = null;
     this.distDir = null;
     this.ignoreFiles = [];
@@ -76,7 +76,7 @@ class Hico {
   // check if file is ignore
   isIgnore (file){
     let ignore = false;
-    for(let i=0, ilen=this.ignoreFiles.length; i<ilen; i++){
+    for(let i = 0, ilen = this.ignoreFiles.length; i < ilen; i++){
       if(file.includes(this.ignoreFiles[i])){
         ignore = true;
         break;
@@ -126,7 +126,7 @@ class Hico {
     console.log('\n API: js is not available at this version');
     process.exit();
 
-    console.log(`\n=============== js building ==============`);
+    console.log('\n=============== js building ==============');
 
     files = [].concat(files).map(file => path.resolve(this.srcDir, path.normalize(file)));
 
@@ -139,11 +139,11 @@ class Hico {
         if(path.extname(file) !== '.js')return;
         // ignore webpack entry file
         if(file.includes('index.js'))return;
-        console.log(` ${index+1} building: ${file}`);
+        console.log(` ${index + 1} building: ${file}`);
         const compiled = babel.transformFileSync(file, Object.assign({
           extends: path.join(__dirname, '../.babelrc'),
           minified: this._env === 'production',
-          presets: ['env']
+          presets: ['env'],
         }, opt.babel || {}));
         const dist = file.replace(this.srcDir, this.distDir);
         util.mkdirDeep(path.dirname(dist));
@@ -233,6 +233,7 @@ class Hico {
       return file.includes('index.js') && !this.isIgnore(file);
     });
     files = this.normalizeFiles(files);
+    files = this.filterUnChangedEntries(files);
     this.addEntries(files);
   }
 
@@ -276,6 +277,32 @@ class Hico {
       hotUpdate: config,
     });
   }
-};
+
+  // filter entry which is not changed since last
+  filterUnChangedEntries (entries){
+    let oldEntryHashMap = {};
+    const newEntries = [];
+    const newEntryHashMap = {};
+    // check if entry hash map file exist
+    const hashMapFilePath = path.join(this.srcDir, './hico-hash-map.json');
+    if(fs.existsSync(hashMapFilePath)){
+      oldEntryHashMap = require(hashMapFilePath);
+    }
+    // compare file hash
+    for(const entry of entries){
+      // get md5 of entry
+      const md5 = crypto.createHash('md5');
+      md5.update(fs.readFileSync(entry));
+      const entryHash = md5.digest('hex');
+      if(!(oldEntryHashMap[entry] && oldEntryHashMap[entry] === entryHash)){
+        newEntries.push(entry);
+      }
+      newEntryHashMap[entry] = entryHash;
+    }
+    // sync new entries to hash map file
+    fs.writeFileSync(hashMapFilePath, JSON.stringify(newEntryHashMap, null, 2));
+    return newEntries;
+  }
+}
 
 module.exports = Hico;
