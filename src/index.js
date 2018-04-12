@@ -6,7 +6,10 @@ const devConfig = require('../build/dev.config.js');
 const prodConfig = require('../build/prod.config.js');
 
 class Hico {
-  constructor (){
+  constructor (config){
+    this.config = Object.assign({
+      entryHash: true,
+    }, config);
     this._env = 'development';
     this.entry = {};
     this.srcDir = null;
@@ -233,7 +236,9 @@ class Hico {
       return file.includes('index.js') && !this.isIgnore(file);
     });
     files = this.normalizeFiles(files);
-    files = this.filterUnChangedEntries(files);
+    if(this.config.entryHash){
+      files = this.filterUnChangedEntries(files);
+    }
     this.addEntries(files);
   }
 
