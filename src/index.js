@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const util = require('./util.js');
+const webpack = require('webpack');
+const { exec, spawn } = require('child_process');
 const devConfig = require('../build/dev.config.js');
 const prodConfig = require('../build/prod.config.js');
 
@@ -242,8 +244,7 @@ class Hico {
     this.addEntries(files);
   }
 
-  // build resources
-  build (config = {}){
+  buildConfig (config = {}){
     config = Object.assign({
       watch: false,
       hmr: false,
@@ -265,22 +266,55 @@ class Hico {
       dist: this.distDir,
       style: this.style,
     }, config));
+  }
 
-    return this.webpackConfig;
+  // build resources
+  build (config = {}){
+    this.buildConfig(config);
+    this.run();
   }
 
   // watch
   watch (){
-    return this.build({
+    this.buildConfig({
       watch: true,
     });
+    this.run();
   }
 
   // hot update
   hmr (config = {}){
-    return this.build({
+    this.buildConfig({
       hmr: config,
     });
+    this.run();
+  }
+
+  run (hmr = false){
+    /* webpack(this.webpackConfig, (err, stats) => {
+      if (err || stats.hasErrors()) {
+        // Handle errors here
+      }
+      console.log('>>> build done');
+    }); */
+    const tempConfigFilePath = path.join(__dirname, './webpack-temp.config.json');
+    fs.writeFileSync(tempConfigFilePath, JSON.stringify(this.webpackConfig, null, 2));
+    if(!hmr){
+      const ps = spawn(`${path.join(__dirname, '../node_modules/.bin/webpack.cmd')}`, ['--colors', '--progress', '--hide-modules', '--config', `${tempConfigFilePath}`]);
+      // const cmd = `${path.join(__dirname, '../node_modules/.bin/webpack.cmd')} --colors --progress --hide-modules --config=${tempConfigFilePath}`;
+      ps.stdout.on('data', data => {
+        console.log(data.toString());
+      });
+      ps.stderr.on('data', data => {
+        console.log(data.toString());
+      });
+      ps.on('close', code => {
+        console.log('build done ', code);
+      });
+      // exec(`${path.join(__dirname, '../node_modules/.bin/webpack.cmd')} --colors --progress --hide-modules --config=${tempConfigFilePath}`);
+    }else {
+      // exec(`${path.join(__dirname, '../node_modules/.bin/webpack-dev-server.cmd')} --hot --colors --config=${tempConfigFilePath}`);
+    }
   }
 
   // filter entry which is not changed since last
