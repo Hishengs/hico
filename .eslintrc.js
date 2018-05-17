@@ -33,5 +33,11 @@ module.exports = {
     "class-methods-use-this": "off",
     "import/no-dynamic-require": "off",
     "global-require": "off",
+    "no-underscore-dangle": "off",
+    "import/no-unresolved": "off",
+    "quotes": "warn",
+    "max-len": "off",
+    "no-unused-expressions": "warn",
+    "prefer-template": "off",
   },
 };

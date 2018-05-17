@@ -8,7 +8,7 @@ const prodConfig = require('../build/prod.config.js');
 class Hico {
   constructor (config){
     this.config = Object.assign({
-      entryHash: true,
+      entryHash: false,
     }, config);
     this._env = 'development';
     this.entry = {};
@@ -222,7 +222,7 @@ class Hico {
     if((/\.(css|less|s[ac]ss|styl[us])$/).test(ext)){ // stylesheet
       if(this.entry['style-puppet']){
         this.entry['style-puppet'].push(filepath);
-      }else this.entry['style-puppet'] = [path.join(__dirname, './style-puppet.js') , filepath];
+      }else this.entry['style-puppet'] = [path.join(__dirname, './style-puppet.js'), filepath];
     }else {
       this.entry[filename.replace(ext, '')] = filepath;
     }
@@ -246,7 +246,7 @@ class Hico {
   build (config = {}){
     config = Object.assign({
       watch: false,
-      hotUpdate: false,
+      hmr: false,
       extractStyle: false,
       extractStyleConfig: '[name].css',
       publicPath: 'dist',
@@ -277,9 +277,9 @@ class Hico {
   }
 
   // hot update
-  hotUpdate (config = {}){
-    this.build({
-      hotUpdate: config,
+  hmr (config = {}){
+    return this.build({
+      hmr: config,
     });
   }
 

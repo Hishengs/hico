@@ -3,46 +3,46 @@ const fs = require('fs');
 
 // make directory deeply
 const mkdirDeep = (distPath) => {
-	distPath = path.join(distPath, '');
-	if(!fs.existsSync(distPath)){
-		const splitedDistPath = distPath.split(path.sep);
-		splitedDistPath.reduce((res, dir, index) => {
-			const dirPath = index ? res + '/' + dir : dir;
-			if(!fs.existsSync(dirPath)){
-				fs.mkdirSync(dirPath);
-			}
-			return dirPath;
-		}, '');
-	}
+  distPath = path.join(distPath, '');
+  if(!fs.existsSync(distPath)){
+    const splitedDistPath = distPath.split(path.sep);
+    splitedDistPath.reduce((res, dir, index) => {
+      const dirPath = index ? res + '/' + dir : dir;
+      if(!fs.existsSync(dirPath)){
+        fs.mkdirSync(dirPath);
+      }
+      return dirPath;
+    }, '');
+  }
 };
 
 // copy file
 const copyFile = (src, dist) => {
-	const fileData = fs.readFileSync(src, { encoding: 'utf8' });
-	mkdirDeep(path.dirname(dist)); // create dir of dist file
-	fs.writeFileSync(dist, fileData, { encoding: 'utf8' });
+  const fileData = fs.readFileSync(src, { encoding: 'utf8' });
+  mkdirDeep(path.dirname(dist)); // create dir of dist file
+  fs.writeFileSync(dist, fileData, { encoding: 'utf8' });
 };
 
 // copy directory
 const copyDir = (src, dist) => {
-	const files = getDirFiles(src);
-	files.forEach(file => {
-		copyFile(file, file.replace(src, dist));
-	});
+  const files = getDirFiles(src);
+  files.forEach(file => {
+    copyFile(file, file.replace(src, dist));
+  });
 };
 
 // move file
 const moveFile = (src, dist) => {
-	copyFile(src, dist);
-	fs.unlinkSync(src);
+  copyFile(src, dist);
+  fs.unlinkSync(src);
 };
 
 // move directory
 const moveDir = (src, dist) => {
-	const files = getDirFiles(src);
-	files.forEach(file => {
-		moveFile(file, file.replace(src, dist));
-	});
+  const files = getDirFiles(src);
+  files.forEach(file => {
+    moveFile(file, file.replace(src, dist));
+  });
 };
 
 // get files from dir
@@ -68,21 +68,21 @@ const getDirFiles = (dirPath, match = null) => {
 
 // is directory
 const isDir = (file) => {
-	return fs.statSync(file).isDirectory(file);
+  return fs.statSync(file).isDirectory(file);
 };
 
 // is file
 const isFile = (file) => {
-	return fs.statSync(file).isFile(file);
+  return fs.statSync(file).isFile(file);
 };
 
 module.exports = {
-	mkdirDeep,
-	copyFile,
-	copyDir,
-	moveFile,
-	moveDir,
-	isDir,
-	isFile,
-	getDirFiles,
+  mkdirDeep,
+  copyFile,
+  copyDir,
+  moveFile,
+  moveDir,
+  isDir,
+  isFile,
+  getDirFiles,
 };

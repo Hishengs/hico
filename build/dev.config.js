@@ -3,29 +3,28 @@ const webpack = require('webpack');
 const baseConfig = require('./base.config.js');
 
 module.exports = (config = {}) => {
-	const base = baseConfig(config);
-	// set env
-	base.plugins.push(new webpack.DefinePlugin({
-	  'process.env.NODE_ENV': JSON.stringify('development')
-	}));
-	// if watch mode
-	if(config.watch){
-		base.watch = true;
-	}
+  const base = baseConfig(config);
+  // set env
+  base.plugins.push(new webpack.DefinePlugin({
+    'process.env.NODE_ENV': JSON.stringify('development'),
+  }));
+  // if watch mode
+  if(config.watch){
+    base.watch = true;
+  }
 
-	// if(config.devServer){
-	// 	const devServer = Object.assign({
-	// 	  hot: true,
-	// 	  inline: true,
-	// 	  compress: true,
-	// 	  port: parseInt(Math.random() * 10000),
-	// 	  contentBase: options.devServer.contentBase || path.join(__dirname, '../'),  
-	// 	}, options.devServer);
+  // 模块热更新
+  if(config.hmr){
+    const devServer = Object.assign({
+      hot: true,
+      inline: true,
+      compress: true,
+      port: 823,
+      contentBase: config.hmr.contentBase || path.join(process.cwd(), '../'),
+    }, config.hmr);
 
-	// 	return Object.assign(base, {
-	// 	  devServer,
-	// 	});
-	// }else return base;
-
-	return base;
+    return Object.assign(base, {
+      devServer,
+    });
+  }else return base;
 };

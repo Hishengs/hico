@@ -205,12 +205,12 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 **参数** `config` 配置<br/>
 **说明** 打包的配置<br/>
 **默认** <br/>
-```js
+<!-- ```js
 {
   // 是否对所有入口文件做 hash 对比，hash 值不变的入口文件将被忽略
   entryHash: true,
 }
-```
+``` -->
 
 ### src(srcDir)
 **参数** `srcDir` 开发目录。<br/>
@@ -273,8 +273,13 @@ config = {
 
 <br/>
 
+### hmr(config)
+**参数** `config` devServer 配置<br/>
+**说明** 热更新（模块热替换）<br/>
+**返回** 无。<br/>
+
 ## TODO
-1. 支持热更新。
+~~1. 支持热更新。~~
 
 <br/>
 

@@ -1,17 +1,17 @@
 const fs = require('fs');
 const path = require('path');
-const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const WebpackHookPlugin = require('../src/plugin/webpack-hook-plugin.js');
 
 module.exports = (config) => {
-
-  let plugins = [
-    new WebpackHookPlugin('done', function(){
+  const plugins = [
+    new WebpackHookPlugin('done', () => {
       // remove style-puppet.js from dist
       try {
         fs.unlinkSync(path.join(config.dist, 'style-puppet.js'));
-      }catch (e){}
+      }catch (e){
+        //
+      }
       console.log('\n\n============== webpack building done ==============\n');
     }),
   ];
@@ -26,7 +26,7 @@ module.exports = (config) => {
     options: {
       minimize: config.env === 'production',
       sourceMap: config.env === 'production',
-    }
+    },
   };
   const postcssLoader = {
     loader: 'postcss-loader',
@@ -34,7 +34,7 @@ module.exports = (config) => {
       sourceMap: config.env === 'production',
       ident: 'postcss',
       plugins: [require('autoprefixer')],
-    }
+    },
   };
   const cssRules = [
     { name: 'less', test: /\.less/ },
@@ -78,7 +78,7 @@ module.exports = (config) => {
           options: {
             name: '[name].[hash:8].[ext]',
           },
-        }
+        },
       ],
     },
   ];
@@ -104,8 +104,8 @@ module.exports = (config) => {
           options: {
             url: true,
             sourceMap: !!config.style.css.config.sourceMap,
-            importLoaders: 1
-          }
+            importLoaders: 1,
+          },
         },
         {
           loader: 'postcss-loader',
@@ -113,7 +113,7 @@ module.exports = (config) => {
             // sourceMap: !!config.style.sourceMap,
             ident: 'postcss',
             plugins: [require('autoprefixer')],
-          }
+          },
         },
       ];
 
@@ -122,7 +122,7 @@ module.exports = (config) => {
           loader: 'less-loader',
           options: {
             sourceMap: !!config.style.less.config.sourceMap,
-          }
+          },
         });
       }
 
@@ -131,7 +131,7 @@ module.exports = (config) => {
           loader: 'sass-loader',
           options: {
             sourceMap: !!config.style.sass.config.sourceMap,
-          }
+          },
         });
       }
 
@@ -140,7 +140,7 @@ module.exports = (config) => {
           loader: 'stylus-loader',
           options: {
             sourceMap: !!config.style.stylus.config.sourceMap,
-          }
+          },
         });
       }
 
@@ -151,7 +151,6 @@ module.exports = (config) => {
           use: loaders,
         }),
       });
-
     });
   });
 

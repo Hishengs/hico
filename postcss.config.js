@@ -5,4 +5,4 @@ module.exports = {
   //   'postcss-cssnext': {},
   //   'cssnano': {}
   // }
-}
+};
