@@ -62,7 +62,7 @@ module.exports = (config) => {
       use: config.extractStyle ? CommonExtractText.extract({
         fallback: 'style-loader',
         use: [cssLoader, postcssLoader],
-      }) : ['style-loader', postcssLoader, cssLoader],
+      }) : ['style-loader', cssLoader, postcssLoader],
       exclude: [],
     },
     ...cssRules,
