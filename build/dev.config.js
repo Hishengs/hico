@@ -8,6 +8,7 @@ module.exports = (config = {}) => {
   base.plugins.push(new webpack.DefinePlugin({
     'process.env.NODE_ENV': JSON.stringify('development'),
   }));
+
   // if watch mode
   if(config.watch){
     base.watch = true;
@@ -15,10 +16,14 @@ module.exports = (config = {}) => {
 
   // 模块热更新
   if(config.hmr){
+    base.plugins.push(new webpack.NamedModulesPlugin());
+    base.plugins.push(new webpack.HotModuleReplacementPlugin());
+
     const devServer = Object.assign({
       hot: true,
+      // hotOnly: true,
       inline: true,
-      compress: true,
+      // compress: true,
       port: 823,
       contentBase: config.hmr.contentBase || path.join(process.cwd(), '../'),
     }, config.hmr);
