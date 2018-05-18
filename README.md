@@ -273,8 +273,8 @@ config = {
 
 <br/>
 
-### hmr(config)
-**参数** `config` devServer 配置<br/>
+### hotUpdate(devServerConfig)
+**参数** `devServerConfig` devServer 配置<br/>
 **说明** 热更新（模块热替换）<br/>
 **返回** 无。<br/>
 

@@ -245,7 +245,7 @@ class Hico {
   buildConfig (config = {}){
     config = Object.assign({
       watch: false,
-      hmr: false,
+      devServer: false,
       extractStyle: false,
       extractStyleConfig: '[name].css',
       publicPath: 'dist',
@@ -281,9 +281,9 @@ class Hico {
   }
 
   // hot update
-  hmr (config = {}){
+  hotUpdate (config = {}){
     this.buildConfig({
-      hmr: config,
+      devServer: config,
     });
     return this.webpackConfig;
   }

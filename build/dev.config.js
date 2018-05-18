@@ -15,7 +15,7 @@ module.exports = (config = {}) => {
   }
 
   // 模块热更新
-  if(config.hmr){
+  if(config.devServer){
     base.plugins.push(new webpack.NamedModulesPlugin());
     base.plugins.push(new webpack.HotModuleReplacementPlugin());
 
@@ -25,8 +25,8 @@ module.exports = (config = {}) => {
       inline: true,
       // compress: true,
       port: 823,
-      contentBase: config.hmr.contentBase || path.join(process.cwd(), '../'),
-    }, config.hmr);
+      contentBase: config.devServer.contentBase || path.join(process.cwd(), '../'),
+    }, config.devServer);
 
     return Object.assign(base, {
       devServer,

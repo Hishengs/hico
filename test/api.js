@@ -5,4 +5,4 @@ const path = require('path');
 hico.src(path.join(__dirname, './frontend/page'))
   .dist(path.join(__dirname, './dist'))
   .env('development')
-  .build();
+  .hotUpdate();

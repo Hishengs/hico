@@ -1,6 +1,6 @@
 {
   "name": "hico",
-  "version": "1.0.8.1",
+  "version": "1.0.9",
   "description": "A frontend solution for traditional website",
   "main": "index.js",
   "scripts": {
