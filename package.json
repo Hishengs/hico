@@ -1,6 +1,6 @@
 {
   "name": "hico",
-  "version": "1.0.8",
+  "version": "1.0.8.1",
   "description": "A frontend solution for traditional website",
   "main": "index.js",
   "scripts": {
@@ -36,7 +36,7 @@
     "vue-loader": "^13.5.0",
     "vue-template-compiler": "^2.5.9",
     "webpack": "3.12.0",
-    "webpack-dev-server": "^3.1.4"
+    "webpack-dev-server": "2.11.1"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
