@@ -1,5 +1,5 @@
 # Hico
-A frontend solution for traditional website
+A Frontend Solution for Traditional Website
 
 传统网站前端工程化实践方案
 
@@ -10,41 +10,44 @@ npm i --save-dev hico
 
 ## Usage
 
-### 1. 目录结构
+### 1. 项目结构初探
 假设你的前端开发目录是 `frontend`，目录结构如下：
 
 ```html
 ├── frontend
-  ├── asset                    // 资源目录
+  ├── assets                   // 资源目录
       ├── style                // 样式
       ├── script               // 脚本
       ├── image                // 图片
       ├── font                 // 字体
-  ├── component                // 通用组件（以 vue 为例）
+  ├── components               // 通用组件（以 vue 为例）
       ├── header.vue
       ├── footer.vue
-  ├── page                     // 页面脚本目录
+  ├── pages                    // 页面脚本目录
       ├── temp                 // 临时目录
       ├── a
-          ├── index.entry.js   // 页面 webpack 入口文件
+          ├── index.html       // 页面a
+          ├── index.js         // 页面a webpack 入口文件
           ├── index.less       // 页面样式文件
       ├── b
-          ├── index.entry.js   // 页面 webpack 入口文件
+          ├── index.html       // 页面b
+          ├── index.js         // 页面b webpack 入口文件
           ├── index.less       // 页面样式文件
-      ├── index.entry.js       // 首页 webpack 主入口文件
-      ├── index.less           // 首页样式
-      ├── index.vue            // 首页 vue 组件
+      ├── index.html           // 首页
+      ├── index.js             // 首页 webpack 主入口文件
+      ├── index.vue            // 首页的 vue 根组件
+      ├── index.less           // 首页样式文件
 ```
 
-可以看出，你的应用主要开发目录是 `/frontend/page`，其他目录如 `/frontend/asset` 和 `/frontend/component` 等都是资源目录，被引用但最后不会被打包到构建目录。
+可以看出，你的应用主要开发目录是 `/frontend/pages`，其他目录如 `/frontend/assets` 和 `/frontend/components` 等都是资源目录，被引用但最后不会被打包到构建输出目录。
 
 
 
-**Hico** 会遍历 `/frontend/page` 下所有的 `index.js` 形成入口文件列表，并作为 `webpack` 的构建入口。
+**Hico** 会遍历 `/frontend/pages` 下所有的 `index.js` 形成入口文件列表，并添加到 `webpack` 的构建入口。
 
 
 
-正常来讲，如果应用按模块划分，每个模块都应该有一个入口文件，例如上面的`/frontend/page/a/index.entry.js` 和 `/frontend/page/b/index.entry.js` ，在模块页面中会引用此入口文件构建后的目标脚本。
+正常来讲，如果应用按模块划分，每个模块都应该有一个入口文件，例如上面的`/frontend/pages/a/index.js` 和 `/frontend/pages/b/index.js` ，在模块页面中会引用此入口文件构建后的目标脚本。
 
 
 
@@ -52,7 +55,7 @@ npm i --save-dev hico
 
 
 
-其中，`/frontend/page/index.entry.js` 是应用首页的入口文件：
+其中，`/frontend/pages/index.js` 是应用首页的入口文件：
 
 ```js
 import './index.less';
@@ -65,7 +68,7 @@ window.app = new Vue({
 });
 ```
 
-在应用首页引用 `index.html`
+在应用首页 `index.html` 中引用构建后的脚本文件：
 
 ```html
 <!DOCTYPE html>
@@ -75,7 +78,7 @@ window.app = new Vue({
 </head>
 <body>
   <div id="app"></div>
-  <script src="/dist/index.entry.js"></script>
+  <script src="/dist/index.js"></script>
 </body>
 </html>
 ```
@@ -83,7 +86,7 @@ window.app = new Vue({
 
 再看看模块 a：
 
-`index.entry.js`
+`/frontend/pages/a/index.js`
 
 ```js
 import './index.less';
@@ -101,38 +104,42 @@ document.getElementsByTagName('h1')[0].innerText = 'A';
 </head>
 <body>
   <h1 class="title"></h1>
-  <script src="/dist/a/index.entry.js"></script>
+  <script src="/dist/a/index.js"></script>
 </body>
 </html>
 ```
 
+模块 b 同模块 a 类似。
+
+
 ### 2. 构建你的工程
 
-创建 `webpack-dev.config.js`
+#### 创建 `webpack-dev.config.js`
+> **Hico** 的原理很简单，只是根据你的配置为你生成 `webpack` 配置，并最终交由 `webpack` 去构建你的项目。
 
 ```js
 const Hico = require('hico');
 const hico = new Hico();
 const path = require('path');
 
-module.exports = hico.src(path.join(__dirname, './frontend/page'))  // 指定构建入口目录
-                      .dist(path.join(__dirname, './dist'))            // 指定构建输出目录
-                      .ignore(['./temp'])                              // 忽略掉临时性目录
-                      .env('development')                              // 设置打包环境
-                      .build();                                        // 开始打包
+module.exports = hico.src(path.join(__dirname, './frontend/page'))    // 指定构建入口目录
+                     .dist(path.join(__dirname, './dist'))            // 指定构建输出目录
+                     .ignore(['./temp'])                              // 忽略掉临时性目录
+                     .env('development')                              // 设置构建环境
+                     .build();                                        // 开始构建
 ```
 
-编辑你的 `package.json`，添加以下命令
+#### 编辑你的 `package.json`，添加以下命令
 
 ```json
-"build-dev": "webpack --progress --hide-modules --colors --config=webpack-dev.config.js",
+"build-dev": "./node_modules/.bin/webpack.cmd --progress --hide-modules --colors --config=webpack-dev.config.js",
 ```
 
 在项目目录下执行 `npm run build-dev` 构建打包。
 
 <br/>
 
-## Go Deep
+## Dive Deeper
 
 ### 忽略文件或者文件夹
 
@@ -162,9 +169,9 @@ hico.src(srcDir).dist(distDir).env('production').build();
 hico.src(srcDir).dist(distDir).css(['./style']).build();
 ```
 
-会将 `style` 目录下所有的 `.css` 文件打包到输出目录。
+这会将 `style` 目录下所有的 `.css` 文件打包到输出目录。
 
-也可以指定单个文件：
+你也可以指定单个样式文件：
 
 ```js
 hico.src(srcDir).dist(distDir).css(['./style/common.css']).build();
@@ -197,14 +204,17 @@ hico.src(srcDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build
 hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 ```
 
+> 注意，以上如果你并不需要构建过程，可以把最后的 build 去掉。
+
+
 <br/>
 
 ## API
 
 ### new Hico(config)
-**参数** `config` 配置<br/>
-**说明** 打包的配置<br/>
-**默认** <br/>
+**参数** `config` 构建配置项<br/>
+**说明** 创建 **Hico** 构建实例<br/>
+**默认** 目前尚未支持任何配置项<br/>
 <!-- ```js
 {
   // 是否对所有入口文件做 hash 对比，hash 值不变的入口文件将被忽略
@@ -213,50 +223,50 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 ``` -->
 
 ### src(srcDir)
-**参数** `srcDir` 开发目录。<br/>
-**说明** 指定你的开发目录。<br/>
-**返回** 返回当前实例。<br/>
+**参数** `srcDir` 开发目录<br/>
+**说明** 指定你的开发目录<br/>
+**返回** 返回当前实例<br/>
 
 
 ### dist(distDir)
-**参数** `distDir` 输出目录。<br/>
-**说明** 指定你的输出目录。<br/>
-**返回** 返回当前实例。<br/>
+**参数** `distDir` 输出目录<br/>
+**说明** 指定你的输出目录<br/>
+**返回** 返回当前实例<br/>
 
 
 ### ignore(files)
-**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。<br/>
-**说明** 忽略文件或者文件夹。<br/>
-**返回** 返回当前实例。<br/>
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
+**说明** 忽略文件或者文件夹<br/>
+**返回** 返回当前实例<br/>
 
 
 ### env(env)
-**参数** `env` 当前环境。<br/>
-**说明** 指定当前打包环境：`development`（默认） 或者 `production`，会根据指定环境采用不同的打包策略。<br/>
-**返回** 返回当前实例。<br/>
+**参数** `env` 当前环境<br/>
+**说明** 指定当前打包环境：`development`（默认） 或者 `production`，会根据指定环境采用不同的构建策略<br/>
+**返回** 返回当前实例<br/>
 
 
 ### css(files)
-**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。<br/>
-**说明** 指定要打包的 css 文件。<br/>
-**返回** 返回当前实例。<br/>
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
+**说明** 指定要打包的 css 文件<br/>
+**返回** 返回当前实例<br/>
 
 
 ### less(files)
-**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。<br/>
-**说明** 指定要打包的 less 文件。<br/>
-**返回** 返回当前实例。<br/>
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
+**说明** 指定要打包的 less 文件<br/>
+**返回** 返回当前实例<br/>
 
 
 ### sass(files)
-**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。<br/>
-**说明** 指定要打包的 sass 文件。<br/>
-**返回** 返回当前实例。<br/>
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
+**说明** 指定要打包的 sass 文件<br/>
+**返回** 返回当前实例<br/>
 
 ### copy(files)
-**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组。<br/>
-**说明** 有时某些文件(夹)不想作处理，只是想简单地复制到输出目录，可使用此方法。<br/>
-**返回** 返回当前实例。<br/>
+**参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
+**说明** 有时某些文件(夹)不想作处理，只是想简单地复制到输出目录，可使用此方法<br/>
+**返回** 返回当前实例<br/>
 
 ### build(config)
 **参数** <br/>
@@ -268,18 +278,19 @@ config = {
 }
 ```
 
-**说明** 执行打包构建。<br/>
-**返回** 无。<br/>
+**说明** 执行打包构建<br/>
+**返回** 无<br/>
 
 <br/>
 
 ### hotUpdate(devServerConfig)
 **参数** `devServerConfig` devServer 配置<br/>
 **说明** 热更新（模块热替换）<br/>
-**返回** 无。<br/>
+**返回** 无<br/>
+
 
 ## TODO
-~~1. 支持热更新。~~
+~~1. 支持热更新~~
 
 <br/>
 
