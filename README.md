@@ -4,6 +4,7 @@ A Frontend Solution for Traditional Website
 传统网站前端工程化实践方案
 
 <br/>
+
 ## Features
 ### 工程化
 解决传统网站开发模式的痛点，使用流行的构建工具及方法。
@@ -15,11 +16,13 @@ A Frontend Solution for Traditional Website
 如果你仍然需要定制，你可以在我们生成的配置基础上自己自行修改或调整配置策略。
 
 <br/>
+
 ## Install
 ```js
 npm i --save-dev hico
 ```
 <br/>
+
 ## Usage
 
 ### 1. 项目结构初探
@@ -275,6 +278,7 @@ hico.src(srcDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build
 **Hico** 最终会将 sass 文件转译为 `.css` 文件到输出目录。
 
 <br/>
+
 ### 打包其他文件
 
 既不是样式文件，也不是脚本文件，如果也有同步的需求，可以调用简单的 `copy` 接口复制到输出目录：
@@ -287,11 +291,13 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 
 
 <br/>
+
 ### 在 Laravel 项目中使用 Hico
 你可以参见本仓库中的测试项目：`/test/hico`。
 
 
 <br/>
+
 ## API
 
 ### new Hico(config)
