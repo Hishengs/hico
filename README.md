@@ -277,7 +277,7 @@ hico.src(srcDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build
 
 **Hico** 最终会将 sass 文件转译为 `.css` 文件到输出目录。 -->
 
-<br/>
+
 
 ### 同步其他文件
 
@@ -290,7 +290,6 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 > 注意，以上如果你并不需要构建过程，可以把最后的 build 去掉。
 
 
-<br/>
 
 ### 在 Laravel 项目中使用 Hico
 你可以参见本仓库中的测试项目：`/test/hico`。
@@ -301,7 +300,7 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 ## API
 
 ### new Hico(config)
-**参数** `config` 构建配置项<br/>
+**参数** `config` 全局配置项<br/>
 **说明** 创建 **Hico** 构建实例<br/>
 **默认** 目前尚未支持任何配置项<br/>
 <!-- ```js
