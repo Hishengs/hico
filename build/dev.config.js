@@ -5,9 +5,7 @@ const baseConfig = require('./base.config.js');
 module.exports = (config = {}) => {
   const base = baseConfig(config);
   // set env
-  base.plugins.push(new webpack.DefinePlugin({
-    'process.env.NODE_ENV': JSON.stringify('development'),
-  }));
+  base.mode = 'development';
 
   // if watch mode
   if(config.watch){

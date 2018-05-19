@@ -1,3 +1,4 @@
 /node_modules
-/test/dist
-/test/frontend/page/hico-hash-map.json
+/test/hico/frontend/node_modules
+/test/hico/vendor
+/test/hico/.env

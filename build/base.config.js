@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const WebpackHookPlugin = require('../src/plugin/webpack-hook-plugin.js');
 
@@ -14,7 +16,12 @@ module.exports = (config) => {
       }
       console.log('\n\n============== webpack building done ==============\n');
     }),
+    new CleanWebpackPlugin([config.dist], {
+      allowExternal: true,
+    }),
+    new VueLoaderPlugin(),
   ];
+
   let CommonExtractText;
   if(config.extractStyle){
     CommonExtractText = new ExtractTextPlugin(config.extractStyleConfig);
@@ -54,8 +61,8 @@ module.exports = (config) => {
   const rules = [
     {
       test: /\.js$/,
-      exclude: /node_modules/,
       use: 'babel-loader',
+      exclude: /node_modules/,
     },
     {
       test: /\.css$/,

@@ -1,0 +1,14 @@
+{
+  "name": "frontend",
+  "version": "0.0.1",
+  "description": "frontend of hico",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hisheng",
+  "license": "MIT",
+  "devDependencies": {
+    "moment": "^2.22.1"
+  }
+}

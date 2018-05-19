@@ -3,6 +3,18 @@ A Frontend Solution for Traditional Website
 
 传统网站前端工程化实践方案
 
+
+## features
+### 工程化
+解决传统网站开发模式的痛点，使用流行的构建工具及方法。
+### 简洁而强大
+简单的调用，背后该做的都做到了。
+### 站在巨人的肩膀
+基于强大的 webpack 构建，使用最优的配置，为你隐藏痛苦而琐碎的 webpack 配置过程。
+### 灵活
+如果你仍然需要定制，你可以在我们生成的配置基础上自己自行修改调整配置策略。
+
+
 ## Install
 ```js
 npm i --save-dev hico
@@ -45,7 +57,8 @@ npm i --save-dev hico
     ├── components               // 通用组件（以 vue 为例）
         ├── header.vue
         ├── footer.vue
-    ├── pages                    // 页面脚本目录
+    ├── node_modules
+    ├── pages                    // 主要页面开发目录
         ├── temp                 // 临时目录
         ├── a
             ├── index.js         // 页面a webpack 入口文件
@@ -56,6 +69,11 @@ npm i --save-dev hico
         ├── index.js             // 首页 webpack 主入口文件
         ├── index.vue            // 首页的 vue 根组件
         ├── index.less           // 首页样式文件
+    ├── .babelrc
+    ├── .eslintrc.js
+    ├── .gitignore
+    ├── package.json
+    ├── postcss.config.json
 ```
 
 在上面的目录架构中，前端主要负责 `frontend` 目录的开发即可，其中 `/frontend/pages` 与后端的模板目录 `/resources/views` 是一一映射的关系。构建后的 `/public/dist` 同样存在相同的目录结构。`/resources/views` 中的页面只需要对应地引用 `/public/dist` 下的资源即可。
@@ -136,7 +154,7 @@ document.getElementsByTagName('h1')[0].innerText = 'A';
 
 ### 2. 构建你的工程
 
-#### 创建 `webpack-dev.config.js`
+#### 创建 `dev.config.js`
 > **Hico** 的原理很简单，只是根据你的配置为你生成 `webpack` 配置，并最终交由 `webpack` 去构建你的项目。
 
 ```js
@@ -154,7 +172,7 @@ module.exports = hico.src(path.join(__dirname, './frontend/page'))    // 指定�
 #### 编辑你的 `package.json`，添加以下命令
 
 ```json
-"build-dev": "./node_modules/.bin/webpack.cmd --progress --hide-modules --colors --config=webpack-dev.config.js",
+"build-dev": "./node_modules/.bin/webpack.cmd --progress --hide-modules --colors --config=dev.config.js"
 ```
 
 在项目目录下执行 `npm run build-dev` 构建打包。
@@ -162,6 +180,45 @@ module.exports = hico.src(path.join(__dirname, './frontend/page'))    // 指定�
 <br/>
 
 ## Dive Deeper
+
+### 构建生产版本、热更新
+
+#### 构建生产版本
+只需要简单地将环境指定为 `production` 即可。
+```js
+// prod.config.js
+const Hico = require('hico');
+const hico = new Hico();
+const path = require('path');
+
+module.exports = hico.src(path.join(__dirname, './frontend/page'))    // 指定构建入口目录
+                     .dist(path.join(__dirname, './dist'))            // 指定构建输出目录
+                     .ignore(['./temp'])                              // 忽略掉临时性目录
+                     .env('production')                               // 设置构建环境
+                     .build();                                        // 开始构建
+```
+
+#### 热更新
+将 `build()` 替换成 `hotUpdate()` 即可。
+```js
+// hot-update.config.js
+const Hico = require('hico');
+const hico = new Hico();
+const path = require('path');
+
+module.exports = hico.src(path.join(__dirname, './frontend/page'))    // 指定构建入口目录
+                     .dist(path.join(__dirname, './dist'))            // 指定构建输出目录
+                     .ignore(['./temp'])                              // 忽略掉临时性目录
+                     .env('development')                              // 设置构建环境
+                     .hotUpdate();                                    // 开始构建
+```
+
+然后，分别在 `package.json` 中添加命令：
+```js
+"build-prod": "./node_modules/.bin/webpack.cmd --progress --hide-modules --colors --config=prod.config.js",
+"hot-update": "./node_modules/.bin/webpack-dev-server.cmd --progress --hide-modules --colors --config=hot-update.config.js"
+```
+
 
 ### 忽略文件或者文件夹
 
@@ -227,6 +284,10 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 ```
 
 > 注意，以上如果你并不需要构建过程，可以把最后的 build 去掉。
+
+<br/>
+### 在 Laravel 项目中使用 Hico
+你可以参见本仓库中的测试项目：`/test/hico`。
 
 
 <br/>
