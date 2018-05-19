@@ -39,5 +39,7 @@ module.exports = {
     "max-len": "off",
     "no-unused-expressions": "warn",
     "prefer-template": "off",
+    // 嵌套的三元运算符
+    "no-nested-ternary": "off",
   },
 };

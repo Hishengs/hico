@@ -21,9 +21,9 @@ module.exports = (config = {}) => {
       hot: true,
       // hotOnly: true,
       inline: true,
-      // compress: true,
+      compress: true,
       port: 823,
-      contentBase: config.devServer.contentBase || path.join(process.cwd(), '../'),
+      contentBase: path.resolve(process.cwd(), '../'),
     }, config.devServer);
 
     return Object.assign(base, {

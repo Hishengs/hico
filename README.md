@@ -241,7 +241,7 @@ hico.src(srcDir).dist(distDir).env('production').build();
 ```
 
 
-### 打包样式文件
+<!-- ### 打包样式文件
 
 有时你只是想将某些样式文件或者目录打包到输出目录，而不是通过 webpack 引入，你可以这么做：
 
@@ -275,11 +275,11 @@ hico.src(srcDir).dist(distDir).less(['./style/a', './style/a/index.less']).build
 hico.src(srcDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build();
 ```
 
-**Hico** 最终会将 sass 文件转译为 `.css` 文件到输出目录。
+**Hico** 最终会将 sass 文件转译为 `.css` 文件到输出目录。 -->
 
 <br/>
 
-### 打包其他文件
+### 同步其他文件
 
 既不是样式文件，也不是脚本文件，如果也有同步的需求，可以调用简单的 `copy` 接口复制到输出目录：
 
@@ -335,7 +335,7 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 **返回** 返回当前实例<br/>
 
 
-### css(files)
+<!-- ### css(files)
 **参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
 **说明** 指定要打包的 css 文件<br/>
 **返回** 返回当前实例<br/>
@@ -350,7 +350,7 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 ### sass(files)
 **参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
 **说明** 指定要打包的 sass 文件<br/>
-**返回** 返回当前实例<br/>
+**返回** 返回当前实例<br/> -->
 
 ### copy(files)
 **参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
@@ -364,18 +364,31 @@ config = {
   extractStyle: true,                 // 是否提取单独的样式文件
   extractStyleConfig: '[name].css',   // extract-text-plugin 配置
   publicPath: 'dist',                 // 公共资源默认前缀
+  sourceMap: true,                    // 是否启用 sourcemap
 }
 ```
 
 **说明** 执行打包构建<br/>
 **返回** 无<br/>
 
-<br/>
+### watch(config)
+**参数** `config` 构建配置，同 `build()` 配置<br/>
+**说明** 开启监听模式<br/>
+**返回** 无<br/>
 
-### hotUpdate(devServerConfig)
-**参数** `devServerConfig` devServer 配置<br/>
+### hotUpdate(config, devServerConfig)
+**参数** `config` 构建配置，同 `build()` 配置<br/>
+**参数** `devServerConfig` [devServer](https://webpack.js.org/configuration/dev-server/) 配置<br/>
 **说明** 热更新（模块热替换）<br/>
 **返回** 无<br/>
+```js
+module.exports = hico.src(path.join(__dirname, '../pages'))
+  .dist(path.join(__dirname, '../../public/dist'))
+  .env('development')
+  .hotUpdate(undefined, {
+    port: 8888,
+  });
+```
 
 <br/>
 

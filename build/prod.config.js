@@ -1,5 +1,5 @@
 const baseConfig = require('./base.config.js');
-const MinifyPlugin = require('babel-minify-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = (config = {}) => {
   const base = baseConfig(config);
@@ -7,13 +7,16 @@ module.exports = (config = {}) => {
   base.mode = 'production';
 
   // minify code
-  base.plugins.push(new MinifyPlugin({
-    removeConsole: true,
-    removeDebugger: true,
-    removeUndefined: true,
-  }, {
-    comments: false,
-    sourceMap: true,
+  base.plugins.push(new UglifyJsPlugin({
+    parallel: true,
+    sourceMap: config.sourceMap,
+    uglifyOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    extractComments: true,
   }));
 
   return base;

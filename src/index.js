@@ -61,15 +61,13 @@ class Hico {
   }
 
   // ignore files
-  ignore (ignoreFiles){
-    this.ignoreFiles = [].concat(ignoreFiles).map(file => {
-      return path.resolve(this.srcDir, path.normalize(file));
-    });
+  ignore (ignoreFiles = []){
+    this.ignoreFiles = this.normalizeFiles([].concat(ignoreFiles));
     return this;
   }
 
   // set env
-  env (env){
+  env (env = 'development'){
     this._env = env;
     return this;
   }
@@ -233,7 +231,7 @@ class Hico {
   setWebpackEntries (){
     // find entry files and flatten to array
     let files = util.getDirFiles(this.srcDir, file => {
-      return file.includes('index.js') && !this.isIgnore(file);
+      return (/^.*\/?index\.js$/).test(file) && !this.isIgnore(file);
     });
     files = this.normalizeFiles(files);
     if(this.config.entryHash){
@@ -244,26 +242,26 @@ class Hico {
 
   buildConfig (config = {}){
     config = Object.assign({
-      watch: false,
-      devServer: false,
       extractStyle: false,
       extractStyleConfig: '[name].css',
       publicPath: 'dist',
-      env: this._env,
+      sourceMap: true,
     }, config);
-
-    console.log('\n=============== webpack building ==============\n');
 
     this.setWebpackEntries();
 
     // build webpack config
     const makeConfig = this._env === 'production' ? prodConfig : devConfig;
     this.webpackConfig = makeConfig(Object.assign({
+      env: this._env,
       entry: this.entry,
       src: this.srcDir,
       dist: this.distDir,
+      watch: false,
       style: this.style,
     }, config));
+
+    console.log('\n=============== webpack building ==============\n');
   }
 
   // build resources
@@ -273,18 +271,16 @@ class Hico {
   }
 
   // watch
-  watch (){
-    this.buildConfig({
-      watch: true,
-    });
+  watch (config = {}){
+    this.buildConfig(config);
+    this.webpackConfig.watch = true;
     return this.webpackConfig;
   }
 
   // hot update
-  hotUpdate (config = {}){
-    this.buildConfig({
-      devServer: config,
-    });
+  hotUpdate (config = {}, devServerConfig = {}){
+    config.devServer = devServerConfig;
+    this.buildConfig(config);
     return this.webpackConfig;
   }
 

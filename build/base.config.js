@@ -14,7 +14,7 @@ module.exports = (config) => {
       }catch (e){
         //
       }
-      console.log('\n\n============== webpack building done ==============\n');
+      console.log('\n============== webpack building done ==============\n');
     }),
     new CleanWebpackPlugin([config.dist], {
       allowExternal: true,
@@ -32,13 +32,13 @@ module.exports = (config) => {
     loader: 'css-loader',
     options: {
       minimize: config.env === 'production',
-      sourceMap: config.env === 'production',
+      sourceMap: config.sourceMap,
     },
   };
   const postcssLoader = {
     loader: 'postcss-loader',
     options: {
-      sourceMap: config.env === 'production',
+      sourceMap: config.sourceMap,
       ident: 'postcss',
       plugins: [require('autoprefixer')],
     },
@@ -78,7 +78,15 @@ module.exports = (config) => {
       use: 'vue-loader',
     },
     {
-      test: /\.(png|jpg|gif|svg|ttf|eot|woff)$/,
+      test: /\.(png|jpe?g|gif|svg)$/,
+      loader: 'url-loader',
+      options: {
+        limit: 10240,
+        name: '[name].[hash:8].[ext]',
+      },
+    },
+    {
+      test: /\.(ttf|eot|woff2?|otf|mp4|webm|ogg|mp3|wav|flac|aac)$/,
       use: [
         {
           loader: 'file-loader',
@@ -90,11 +98,12 @@ module.exports = (config) => {
     },
   ];
 
-  // deal with styles
+  // deal with styles, for sigle style file compile
   const styleRule = {
     css: rules[1],
     less: rules[2],
     sass: rules[3],
+    stylus: rules[4],
   };
   const styleTypes = Object.keys(config.style);
   styleTypes.forEach(type => {
@@ -110,7 +119,7 @@ module.exports = (config) => {
           loader: 'css-loader',
           options: {
             url: true,
-            sourceMap: !!config.style.css.config.sourceMap,
+            sourceMap: config.sourceMap,
             importLoaders: 1,
           },
         },
@@ -162,11 +171,12 @@ module.exports = (config) => {
   });
 
   return {
+    devtool: config.sourceMap ? (config.env === 'production' ? 'source-map' : 'inline-source-map') : false,
     entry: config.entry,
     output: {
       path: config.dist,
       filename: '[name].js',
-      chunkFilename: '[name]_[chunkhash:8].chunk.js',
+      chunkFilename: '[name].[chunkhash:8].chunk.js',
       publicPath: config.publicPath,
     },
     plugins,
