@@ -11,35 +11,57 @@ npm i --save-dev hico
 ## Usage
 
 ### 1. 项目结构初探
-假设你的前端开发目录是 `frontend`，目录结构如下：
 
-```html
-├── frontend
-  ├── assets                   // 资源目录
-      ├── style                // 样式
-      ├── script               // 脚本
-      ├── image                // 图片
-      ├── font                 // 字体
-  ├── components               // 通用组件（以 vue 为例）
-      ├── header.vue
-      ├── footer.vue
-  ├── pages                    // 页面脚本目录
-      ├── temp                 // 临时目录
+传统网站的开发方式一般是前后端分开开发的，后端人员负责逻辑与模板渲染，前端人员负责样式与交互，最后由后端开发人员在模板中引用前端的脚本和样式文件以及各种其他资源。以典型的 php 项目（laravel）为例，一般具有如下项目架构：
+
+```js
+├── project
+  ├── app
+  ├── bootstrap
+  ├── config
+  ├── database
+  ├── public
+    ├── dist                     // 前端最终构建后的文件输出目录放在这里
+    ├── index.php
+  ├── resources
+    ├── assets
+    ├── lang
+    ├── views                    // 这就是后端的模板目录
       ├── a
-          ├── index.html       // 页面a
-          ├── index.js         // 页面a webpack 入口文件
-          ├── index.less       // 页面样式文件
+        ├── index.html           // 页面 a
       ├── b
-          ├── index.html       // 页面b
-          ├── index.js         // 页面b webpack 入口文件
-          ├── index.less       // 页面样式文件
-      ├── index.html           // 首页
-      ├── index.js             // 首页 webpack 主入口文件
-      ├── index.vue            // 首页的 vue 根组件
-      ├── index.less           // 首页样式文件
+        ├── index.html           // 页面 b
+      ├── index.html             // 首页
+  ├── routes
+  ├── storage
+  ├── tests
+  ├── vendor
+  ├── frontend                   // 这是前端的开发目录
+    ├── assets                   // 资源目录
+        ├── style                // 样式
+        ├── script               // 脚本
+        ├── image                // 图片
+        ├── font                 // 字体
+    ├── components               // 通用组件（以 vue 为例）
+        ├── header.vue
+        ├── footer.vue
+    ├── pages                    // 页面脚本目录
+        ├── temp                 // 临时目录
+        ├── a
+            ├── index.js         // 页面a webpack 入口文件
+            ├── index.less       // 页面样式文件
+        ├── b
+            ├── index.js         // 页面b webpack 入口文件
+            ├── index.less       // 页面样式文件
+        ├── index.js             // 首页 webpack 主入口文件
+        ├── index.vue            // 首页的 vue 根组件
+        ├── index.less           // 首页样式文件
 ```
 
-可以看出，你的应用主要开发目录是 `/frontend/pages`，其他目录如 `/frontend/assets` 和 `/frontend/components` 等都是资源目录，被引用但最后不会被打包到构建输出目录。
+在上面的目录架构中，前端主要负责 `frontend` 目录的开发即可，其中 `/frontend/pages` 与后端的模板目录 `/resources/views` 是一一映射的关系。构建后的 `/public/dist` 同样存在相同的目录结构。`/resources/views` 中的页面只需要对应地引用 `/public/dist` 下的资源即可。
+
+
+在前端开发目录中，主要开发目录是 `/frontend/pages`，其他目录如 `/frontend/assets` 和 `/frontend/components` 等都是资源目录，被引用但最后不会被打包到构建输出目录。
 
 
 
@@ -68,7 +90,7 @@ window.app = new Vue({
 });
 ```
 
-在应用首页 `index.html` 中引用构建后的脚本文件：
+在应用首页 `views/index.html` 中引用构建后的脚本文件：
 
 ```html
 <!DOCTYPE html>
@@ -94,7 +116,7 @@ import './index.less';
 document.getElementsByTagName('h1')[0].innerText = 'A';
 ```
 
-模块 a 页面 `index.html`
+模块 a 页面 `views/a/index.html`
 
 ```html
 <!DOCTYPE html>
@@ -195,7 +217,7 @@ hico.src(srcDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build
 
 **Hico** 最终会将 sass 文件转译为 `.css` 文件到输出目录。
 
-
+<br/>
 ### 打包其他文件
 
 既不是样式文件，也不是脚本文件，如果也有同步的需求，可以调用简单的 `copy` 接口复制到输出目录：
@@ -288,6 +310,7 @@ config = {
 **说明** 热更新（模块热替换）<br/>
 **返回** 无<br/>
 
+<br/>
 
 ## TODO
 ~~1. 支持热更新~~
