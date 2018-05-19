@@ -3,8 +3,8 @@ A Frontend Solution for Traditional Website
 
 传统网站前端工程化实践方案
 
-
-## features
+<br/>
+## Features
 ### 工程化
 解决传统网站开发模式的痛点，使用流行的构建工具及方法。
 ### 简洁而强大
@@ -12,14 +12,14 @@ A Frontend Solution for Traditional Website
 ### 站在巨人的肩膀
 基于强大的 webpack 构建，使用最优的配置，为你隐藏痛苦而琐碎的 webpack 配置过程。
 ### 灵活
-如果你仍然需要定制，你可以在我们生成的配置基础上自己自行修改调整配置策略。
+如果你仍然需要定制，你可以在我们生成的配置基础上自己自行修改或调整配置策略。
 
-
+<br/>
 ## Install
 ```js
 npm i --save-dev hico
 ```
-
+<br/>
 ## Usage
 
 ### 1. 项目结构初探
@@ -285,13 +285,13 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 
 > 注意，以上如果你并不需要构建过程，可以把最后的 build 去掉。
 
+
 <br/>
 ### 在 Laravel 项目中使用 Hico
 你可以参见本仓库中的测试项目：`/test/hico`。
 
 
 <br/>
-
 ## API
 
 ### new Hico(config)
