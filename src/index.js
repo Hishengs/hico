@@ -1,13 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const assign = require('lodash.assign');
 const util = require('./util.js');
 const devConfig = require('../build/dev.config.js');
 const prodConfig = require('../build/prod.config.js');
 
 class Hico {
   constructor (config){
-    this.config = Object.assign({
+    this.config = assign({
       entryHash: false,
     }, config);
     this._env = 'development';
@@ -141,7 +142,7 @@ class Hico {
         // ignore webpack entry file
         if(file.includes('index.js'))return;
         console.log(` ${index + 1} building: ${file}`);
-        const compiled = babel.transformFileSync(file, Object.assign({
+        const compiled = babel.transformFileSync(file, assign({
           extends: path.join(__dirname, '../.babelrc'),
           minified: this._env === 'production',
           presets: ['env'],
@@ -241,7 +242,7 @@ class Hico {
   }
 
   buildConfig (config = {}){
-    config = Object.assign({
+    config = assign({
       extractStyle: false,
       extractStyleConfig: {
         filename: '[name].css',
@@ -255,7 +256,7 @@ class Hico {
 
     // build webpack config
     const makeConfig = this._env === 'production' ? prodConfig : devConfig;
-    this.webpackConfig = makeConfig(Object.assign({
+    this.webpackConfig = makeConfig(assign({
       env: this._env,
       entry: this.entry,
       src: this.srcDir,

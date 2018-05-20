@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const assign = require('lodash.assign');
 const baseConfig = require('./base.config.js');
 
 module.exports = (config = {}) => {
@@ -17,7 +18,7 @@ module.exports = (config = {}) => {
     base.plugins.push(new webpack.NamedModulesPlugin());
     base.plugins.push(new webpack.HotModuleReplacementPlugin());
 
-    const devServer = Object.assign({
+    const devServer = assign({
       hot: true,
       // hotOnly: true,
       inline: true,
@@ -26,7 +27,7 @@ module.exports = (config = {}) => {
       contentBase: path.resolve(process.cwd(), '../'),
     }, config.devServer);
 
-    return Object.assign(base, {
+    return assign(base, {
       devServer,
     });
   }else return base;

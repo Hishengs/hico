@@ -2,3 +2,4 @@
 /test/hico/frontend/node_modules
 /test/hico/vendor
 /test/hico/.env
+/test/hico/public/dist
