@@ -241,7 +241,7 @@ hico.src(srcDir).dist(distDir).env('production').build();
 ```
 
 
-<!-- ### 打包样式文件
+### 打包样式文件
 
 有时你只是想将某些样式文件或者目录打包到输出目录，而不是通过 webpack 引入，你可以这么做：
 
@@ -269,7 +269,7 @@ hico.src(srcDir).dist(distDir).less(['./style/a', './style/a/index.less']).build
 **Hico** 最终会将 less 文件转译为 `.css` 文件到输出目录。
 
 
-#### sass
+<!-- #### sass
 
 ```js
 hico.src(srcDir).dist(distDir).sass(['./style/a', './style/a/index.sass']).build();
@@ -393,6 +393,7 @@ module.exports = hico.src(path.join(__dirname, '../pages'))
 
 ## TODO
 ~~1. 支持热更新~~
+
 2. supprt vendor
 
 <br/>
