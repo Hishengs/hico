@@ -1,0 +1,38 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+p {
+  font-size: 14px;
+}
+.button {
+  border-radius: 5px;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+html p,
+body p {
+  font-size: 14px;
+}
+html .button,
+body .button {
+  border-radius: 5px;
+}
+
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi4vcGFnZXMvc3R5bGUvYXBwLmNzcyIsIndlYnBhY2s6Ly8vLi4vcGFnZXMvc3R5bGUvZGF0YS9hcHAuY3NzIiwid2VicGFjazovLy8uLi9wYWdlcy9zdHlsZS9sZXNzLmxlc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFDRSxVQUFVO0VBQ1YsV0FBVztFQUNYLDBCQUEwQjtLQUN2Qix1QkFBdUI7TUFDdEIsc0JBQXNCO1VBQ2xCLGtCQUFrQjtDQUMzQjtBQUNEO0VBQ0UsZ0JBQWdCO0NBQ2pCO0FBQ0Q7RUFDRSxtQkFBbUI7O0FDWnJCO0VBQ0UsVUFBVTtFQUNWLFdBQVc7O0FDRmI7O0VBRUUsVUFBVTtFQUNWLFdBQVc7RUFDWCwwQkFBMEI7S0FDdkIsdUJBQXVCO01BQ3RCLHNCQUFzQjtVQUNsQixrQkFBa0I7Q0FDM0I7QUFDRDs7RUFFRSxnQkFBZ0I7Q0FDakI7QUFDRDs7RUFFRSxtQkFBbUI7Q0FDcEIiLCJmaWxlIjoiXFxzdHlsZVxcZGF0YVxcYXBwLmNzcyIsInNvdXJjZXNDb250ZW50IjpbImh0bWwsIGJvZHkge1xyXG4gIG1hcmdpbjogMDtcclxuICBwYWRkaW5nOiAwO1xyXG4gIC13ZWJraXQtdXNlci1zZWxlY3Q6IG5vbmU7XHJcbiAgICAgLW1vei11c2VyLXNlbGVjdDogbm9uZTtcclxuICAgICAgLW1zLXVzZXItc2VsZWN0OiBub25lO1xyXG4gICAgICAgICAgdXNlci1zZWxlY3Q6IG5vbmU7XHJcbn1cclxucCB7XHJcbiAgZm9udC1zaXplOiAxNHB4O1xyXG59XHJcbi5idXR0b24ge1xyXG4gIGJvcmRlci1yYWRpdXM6IDVweDtcclxufSIsImh0bWwsIGJvZHkge1xyXG4gIG1hcmdpbjogMDtcclxuICBwYWRkaW5nOiAwO1xyXG59IiwiaHRtbCxcbmJvZHkge1xuICBtYXJnaW46IDA7XG4gIHBhZGRpbmc6IDA7XG4gIC13ZWJraXQtdXNlci1zZWxlY3Q6IG5vbmU7XG4gICAgIC1tb3otdXNlci1zZWxlY3Q6IG5vbmU7XG4gICAgICAtbXMtdXNlci1zZWxlY3Q6IG5vbmU7XG4gICAgICAgICAgdXNlci1zZWxlY3Q6IG5vbmU7XG59XG5odG1sIHAsXG5ib2R5IHAge1xuICBmb250LXNpemU6IDE0cHg7XG59XG5odG1sIC5idXR0b24sXG5ib2R5IC5idXR0b24ge1xuICBib3JkZXItcmFkaXVzOiA1cHg7XG59XG4iXSwic291cmNlUm9vdCI6IiJ9*/

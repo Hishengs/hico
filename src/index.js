@@ -159,8 +159,8 @@ class Hico {
 
   // =============== for style building ================
 
-  packStyle (files, type){
-    files = this.flattenFiles(files);
+  packStyle (files, type, testRegx){
+    files = this.flattenFiles(files).filter(file => testRegx.test(file));
     this.addEntries(files);
     this.style[type].files = files;
   }
@@ -182,27 +182,27 @@ class Hico {
 
   // build css
   css (files){
-    this.packStyle(files, 'css');
+    this.packStyle(files, 'css', /^.*\/?\.css$/);
     return this;
   }
 
   // build less
   less (files){
     this.checkStyleLoader('less');
-    this.packStyle(files, 'less');
+    this.packStyle(files, 'less', /^.*\/?\.less$/);
     return this;
   }
 
   // build sass
   sass (files){
-    this.checkStyleLoader('sass');
+    this.checkStyleLoader('sass', /^.*\/?\.s[ac]ss$/);
     this.packStyle(files, 'sass');
     return this;
   }
 
   // build stylus
   stylus (files){
-    this.checkStyleLoader('stylus');
+    this.checkStyleLoader('stylus', /^.*\/?\.styl$/);
     this.packStyle(files, 'stylus');
     return this;
   }
@@ -243,7 +243,10 @@ class Hico {
   buildConfig (config = {}){
     config = Object.assign({
       extractStyle: false,
-      extractStyleConfig: '[name].css',
+      extractStyleConfig: {
+        filename: '[name].css',
+        chunkFileName: '[id].css',
+      },
       publicPath: 'dist',
       sourceMap: true,
     }, config);

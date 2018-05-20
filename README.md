@@ -334,7 +334,7 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 **返回** 返回当前实例<br/>
 
 
-<!-- ### css(files)
+### css(files)
 **参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
 **说明** 指定要打包的 css 文件<br/>
 **返回** 返回当前实例<br/>
@@ -346,7 +346,7 @@ hico.src(srcDir).dist(distDir).copy(['./font', './image/bg.png']).build();
 **返回** 返回当前实例<br/>
 
 
-### sass(files)
+<!-- ### sass(files)
 **参数** `files` 单个文件(夹)路径或者文件(夹)路径数组<br/>
 **说明** 指定要打包的 sass 文件<br/>
 **返回** 返回当前实例<br/> -->
@@ -393,6 +393,7 @@ module.exports = hico.src(path.join(__dirname, '../pages'))
 
 ## TODO
 ~~1. 支持热更新~~
+2. supprt vendor
 
 <br/>
 

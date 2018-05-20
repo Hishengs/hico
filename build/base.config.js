@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackHookPlugin = require('../src/plugin/webpack-hook-plugin.js');
 
 module.exports = (config) => {
@@ -22,10 +22,10 @@ module.exports = (config) => {
     new VueLoaderPlugin(),
   ];
 
-  let CommonExtractText;
+  let CommonExtractStyle;
   if(config.extractStyle){
-    CommonExtractText = new ExtractTextPlugin(config.extractStyleConfig);
-    plugins.push(CommonExtractText);
+    CommonExtractStyle = new MiniCssExtractPlugin(config.extractStyleConfig);
+    plugins.push(CommonExtractStyle);
   }
 
   const cssLoader = {
@@ -48,12 +48,13 @@ module.exports = (config) => {
     { name: 'sass', test: /\.s[ac]ss/ },
     { name: 'stylus', test: /\.styl/ },
   ].map(item => {
+    const loaders = ['style-loader', cssLoader, postcssLoader, `${item.name}-loader`];
+    if(config.extractStyle){
+      loaders[0] = MiniCssExtractPlugin.loader;
+    }
     return {
       test: item.test,
-      use: config.extractStyle ? CommonExtractText.extract({
-        fallback: 'style-loader',
-        use: [cssLoader, postcssLoader, `${item.name}-loader`],
-      }) : ['style-loader', cssLoader, `${item.name}-loader`],
+      use: loaders,
       exclude: [],
     };
   });
@@ -66,10 +67,7 @@ module.exports = (config) => {
     },
     {
       test: /\.css$/,
-      use: config.extractStyle ? CommonExtractText.extract({
-        fallback: 'style-loader',
-        use: [cssLoader, postcssLoader],
-      }) : ['style-loader', cssLoader, postcssLoader],
+      use: config.extractStyle ? [MiniCssExtractPlugin.loader, cssLoader, postcssLoader] : ['style-loader', cssLoader, postcssLoader],
       exclude: [],
     },
     ...cssRules,
@@ -110,9 +108,11 @@ module.exports = (config) => {
     config.style[type].files.forEach(file => {
       styleRule[type].exclude.push(file);
 
-      const ExtractTextIns = new ExtractTextPlugin(file.replace(config.src, ''));
+      const ExtractStyleIns = new MiniCssExtractPlugin({
+        filename: file.replace(config.src, '').replace(path.extname(file), '.css'),
+      });
 
-      plugins.push(ExtractTextIns);
+      plugins.push(ExtractStyleIns);
 
       const loaders = [
         {
@@ -162,10 +162,7 @@ module.exports = (config) => {
 
       rules.push({
         test: file,
-        use: ExtractTextIns.extract({
-          fallback: 'style-loader',
-          use: loaders,
-        }),
+        use: [MiniCssExtractPlugin.loader, ...loaders],
       });
     });
   });
