@@ -243,7 +243,7 @@ hico.src(srcDir).dist(distDir).env('production').build();
 
 ### 打包样式文件
 
-有时你只是想将某些样式文件或者目录打包到输出目录，而不是通过 webpack 引入，你可以这么做：
+有时你只是想将某些样式文件或者目录构建打包到输出目录，而不是通过 webpack 引入，你可以这么做：
 
 #### css
 
@@ -251,7 +251,7 @@ hico.src(srcDir).dist(distDir).env('production').build();
 hico.src(srcDir).dist(distDir).css(['./style']).build();
 ```
 
-这会将 `style` 目录下所有的 `.css` 文件打包到输出目录。
+这会将 `style` 目录下所有的 `.css` 文件构建打包到输出目录。
 
 你也可以指定单个样式文件：
 
@@ -392,7 +392,7 @@ module.exports = hico.src(path.join(__dirname, '../pages'))
 <br/>
 
 ## TODO
-~~1. 支持热更新~~
+1. ~~支持热更新~~
 
 2. supprt vendor
 
